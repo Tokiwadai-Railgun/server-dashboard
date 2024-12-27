@@ -1,0 +1,31 @@
+.element {
+		border: none;
+		width: 90%;
+		height: 3em;
+		text-align: left;
+		font-family: 'FOT-Rodin';
+		color: var(--fg-font);
+		background: linear-gradient(to left, rgba(0, 0, 0, 0) 50%, var(--bg-overlay-selected) 50%) right;
+		background-size: 200%;
+		margin: 3px;
+
+		transition: background 0.3s ease-out;
+}
+
+.element::before {
+		content:"";
+		width: 1.2em;
+		height: 1.2em;
+		background: var(--bg-overlay);
+		float: left;
+		margin: 6px 6px 6px 6px;
+}
+
+.powered::before {
+		background: var(--bg-overlay-selected);
+}
+
+.element:hover {
+		color: var(--fg-font-selected);
+		background-position: left;
+}
