@@ -14,13 +14,13 @@ import NavBar from "$lib/components/NavBar.svelte";
 <style>
 	:root {
 		--bg-color: rgb(200,195,173);
-		--bg-overlay: rgba(73,70,61, 0.2);
+		--bg-overlay: rgba(73,70,61, 0.3);
 		--bg-overlay-second: rgba(211, 205, 181, 0.6);
 		--bg-overlay-selected: rgba(73,70,61, 0.9);
 		--fg-font: rgb(77,75,66);
 		--fg-font-menu: rgb(113,109,96);
 		--fg-font-selected: rgb(175,169,149);
-
+		--overlay-shadow: rgba(150, 149, 128, 0.8);
 		--element-color: 78,75,66;
 	}
 	@font-face {
@@ -32,6 +32,7 @@ import NavBar from "$lib/components/NavBar.svelte";
 
 		:global(h1) {
 				margin-top: 0;
+				margin-left: 1em;
 				letter-spacing: 0.7rem;
 				text-shadow: .3rem .3rem 0 rgba(77, 73, 62,.3)
 		} 

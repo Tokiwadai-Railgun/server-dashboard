@@ -1,15 +1,22 @@
-.element {
+.list-item {
+		padding: 0;
 		border: none;
 		width: 90%;
-		height: 3em;
+		display: flex;
+		align-items: center;
+		justify-content: flex-start;
+		height: 2.5em;
 		text-align: left;
 		font-family: 'FOT-Rodin';
 		color: var(--fg-font);
 		background: linear-gradient(to left, rgba(0, 0, 0, 0) 50%, var(--bg-overlay-selected) 50%) right;
 		background-size: 200%;
 		margin: 3px;
-
 		transition: background 0.3s ease-out;
+}
+
+.element {
+		font-size: 1.2em;
 }
 
 .element::before {
@@ -22,10 +29,55 @@
 }
 
 .powered::before {
-		background: var(--bg-overlay-selected);
+		/* background: #8B9A7D; */
+		background: #96A589;
+		/* background: #7C8A6E; */
 }
 
-.element:hover {
+.list-item:hover, .list-item:focus {
+		outline: none;
 		color: var(--fg-font-selected);
 		background-position: left;
+}
+
+.list-item::before, .list-item::after{
+		content: '';
+		width: 90%;
+		height: 2px;
+		position: absolute;
+		background-color: var(--bg-overlay-selected);
+		transform: translateY(0);
+		opacity: 0;
+		transition: transform 0.3s ease-out, opacity 0s ease-out 0.2s;
+}
+
+.list-item::after{
+		bottom: 0;
+}
+
+.list-item::before {
+		top: 0;
+}
+
+.list-item:hover::after, .list-item:focus::after {
+		transform: translateY(3px);
+		opacity: 1;
+		transition: transform 0.3s ease-out, opacity 0.1s ease-out 0s;
+}
+
+.list-item:hover::before, .list-item:focus::before {
+		transform: translateY(-3px);
+		opacity: 1;
+		transition: transform 0.3s ease-out, opacity 0.1s ease-out 0s;
+}
+
+.item-container {
+		position: relative;
+}
+
+.selected:not(:hover, :focus) {
+		color: var(--fg-font-selected);
+		background: var(--bg-overlay-selected);
+		transition: none;
+
 }
