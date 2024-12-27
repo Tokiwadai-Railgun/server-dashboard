@@ -13,12 +13,6 @@ const config = {
 		// See https://svelte.dev/docs/kit/adapters for more information about adapters.
 		adapter: adapter()
 	},
-
-	vite: {
-		server: {
-			host: '0.0.0.0'
-		}
-	}
 };
 
 export default config;
