@@ -1,48 +1,26 @@
 <script lang="ts">
 		import InformationOverlay from "$lib/components/InformationOverlay.svelte";
 import List from "$lib/components/List.svelte";
-
 		// Styles for the list snippet
 		import "$lib/styles/borderedList.css"
 
-
-		const serverList: {  // sample response of the proxmox api
-		vmid: number, 
-		name: string, 
-		status: "running" | "stopped" | "paused" | "starting" | "stopping",
-		maxmem: number,
-		maxcpu: number,
-		mem: number | null,
-		uptime: number | null,
-		cpu: number | null
-		}[] = [
-			{
-			  vmid: 100,
-			  name: "ubuntu-server",
-			  status: "running",
-			  maxmem: 4294967296,
-			  maxcpu: 2,
-				mem: 2147483648,
-			  uptime: 1234567,
-			  cpu: 0.45,
-			},
-			{
-			  vmid: 101,
-			  name: "debian-test",
-			  status: "stopped",
-			  maxmem: 2147483648,
-			  maxcpu: 1,
-			  uptime: null,
-				mem: null,
-			  cpu: null,
-			}
-		]
+		import {serverList} from '$lib/data/SampleServers';
+		import SeparationSecondary from "$lib/components/SeparationSecondary.svelte";
+		import Footer from "$lib/components/Footer.svelte";
+		import formatTime from "$lib/functions/formatTime";
 
 		let currentlySelected = $state(serverList[0])
-		let test = $state("hehe");
 
 		function changeFocus({element}: {element: any}) {
-				currentlySelected = serverList.find((server) => server.name == element.name) || serverList[0]
+				currentlySelected = serverList.find((server: any) => server.name == element.name) || serverList[0]
+		}
+
+		const commandList: {name: string, action: any, key: string}[] = [
+				{name: "Start / Stop", action: () => console.log("Start / Stop"), key: "s"},
+		]
+
+		function formatStorage(storage: number) { // oc
+				return Math.round(storage / (1000 * 1000 * 1000)) + "go"
 		}
 </script>
 
@@ -64,14 +42,50 @@ import List from "$lib/components/List.svelte";
 		</List>
 
 		<InformationOverlay title={currentlySelected.name} --square-color={currentlySelected.status == "running" ? "#8B9A7D" : ""}>
-			{#snippet content()}
-					<p class="server-status">{currentlySelected.status}</p>
-					<p class="memory">RAM {Math.round((currentlySelected.mem || 0) / (1000 * 1000 * 1000))}go of {Math.round(currentlySelected.maxmem / (1000 * 1000 * 1000))}go ({(currentlySelected.mem || 0) * 100 / currentlySelected.maxmem}%)</p>
-					<p class="cpu">CPU {(currentlySelected.cpu || 0) * 100 / currentlySelected.maxcpu}% of {currentlySelected.maxcpu} cores </p>
-			{/snippet}
+				{#snippet content()}
+						<div class="data">
+								<span>Status</span>
+								<span>{currentlySelected.status}</span>
+						</div>
+						{#each currentlySelected.ip_addresses as ip}
+								<div class="data">
+										<span>IP</span>
+										<span>{ip}</span>
+								</div>
+						{/each}
+						<SeparationSecondary />
+						<div class="data">
+								<span>RAM</span>
+								<span>{formatStorage(currentlySelected.memory_usage)} of {formatStorage(currentlySelected.max_memory * 1000 * 1000)} ({Math.round((currentlySelected.memory_usage || 0) * 100 / (currentlySelected.max_memory * 1000 * 1000))}%)</span>
+						</div>
+						<div class="data">
+								<span>CPU</span>
+								<span>{(currentlySelected.cpu_usage || 0) / currentlySelected.max_cpu}% of {currentlySelected.max_cpu} cores</span>
+						</div>
+						{#each currentlySelected.storage as disk, count}
+								<div class="data">
+										<span>{disk.disk}</span> <!-- Name -->
+										<span>{formatStorage(disk.storage_used)} of {formatStorage(disk.storage_max)}</span>
+								</div> 
+						{/each}
+
+						<SeparationSecondary />
+						<div class="data">
+								<span>OS</span>
+								<span>{currentlySelected.os_type}</span>
+						</div>
+						<div class="data">
+								<span>Uptime</span>
+								<span>{formatTime(currentlySelected.uptime)}</span>
+						</div>
+				{/snippet}
 		</InformationOverlay>
 </div>
 
+
+<footer>
+		<Footer commands={commandList}/>
+</footer>
 
 
 <style>
@@ -79,6 +93,17 @@ import List from "$lib/components/List.svelte";
 				display: flex;
 				justify-content: space-between;
 		}
+
+		/*Snippet style*/
+		.data {
+				padding: 0;
+				margin: 0 1em 0 1em;
+				display: flex;
+				justify-content: space-between;
+				align-items: flex-start;
+				height: 2em;
+		}
+
 </style>
 
 

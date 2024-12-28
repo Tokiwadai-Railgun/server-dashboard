@@ -1,14 +1,10 @@
 <script>
-	import Footer from "$lib/components/Footer.svelte";
-import NavBar from "$lib/components/NavBar.svelte";
+		import NavBar from "$lib/components/NavBar.svelte";
 </script>
 
 <div class="container">
 		<NavBar/>
 		<slot></slot>
-		<footer>
-				<Footer />
-		</footer>
 </div>
 
 <style>
@@ -48,7 +44,6 @@ import NavBar from "$lib/components/NavBar.svelte";
 	:global(body) {
 		color: var(--fg-font);
 		font-family: "FOT-Rodin";
-
 		background-size: 4px 4px;
 		background-image: linear-gradient(90deg, transparent, transparent 3px, rgba(0,0,0,.07) 4px),
     linear-gradient(transparent, transparent 3px, rgba(0,0,0,.07) 4px);
@@ -110,7 +105,7 @@ import NavBar from "$lib/components/NavBar.svelte";
 			flex-direction: column;
 	}
 
-	footer {
+	:global(footer) {
 			margin-top: auto;
 	}
 </style>

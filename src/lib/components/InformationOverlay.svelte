@@ -7,12 +7,14 @@
 
 <div class="data-overlay">
 		<h2 class="overlay-title">{title}</h2>
-		{@render content()}
+		<div class="data-container">
+				{@render content()}
+		</div>
 </div>
 
 <style>
 		.data-overlay {
-				width: 60vw;
+				width: 30vw;
 				margin-right: 4em;
 				background: var(--bg-overlay-second);
 		}
@@ -35,5 +37,12 @@
 			height: 1em;
 			background: var(--square-color, var(--bg-overlay));
 			flex-shrink: 0;
+		}
+
+		.data-container {
+				padding: 0.5em;
+				display:flex;
+				flex-direction: column;
+				gap: 0.5em;
 		}
 </style>
