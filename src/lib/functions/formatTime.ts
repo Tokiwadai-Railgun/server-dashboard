@@ -6,7 +6,6 @@
 export default function formatTime(time: number) {
 		let hours = Math.round(time / 3600);
 		let minutes = Math.round((time % 3600) / 60)
-		console.log(time - hours * 60)
 		let seconds = time % 60
 
 		return hours != 0 ? `${hours}h ${minutes}mins` : `${minutes}minutes ${seconds}s`

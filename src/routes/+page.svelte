@@ -8,6 +8,7 @@ import List from "$lib/components/List.svelte";
 		import SeparationSecondary from "$lib/components/SeparationSecondary.svelte";
 		import Footer from "$lib/components/Footer.svelte";
 		import formatTime from "$lib/functions/formatTime";
+	import PopUp from "$lib/components/PopUp.svelte";
 
 		let currentlySelected = $state(serverList[0])
 
@@ -15,12 +16,22 @@ import List from "$lib/components/List.svelte";
 				currentlySelected = serverList.find((server: any) => server.name == element.name) || serverList[0]
 		}
 
-		const commandList: {name: string, action: any, key: string}[] = [
-				{name: "Start / Stop", action: () => console.log("Start / Stop"), key: "s"},
-		]
-
 		function formatStorage(storage: number) { // oc
 				return Math.round(storage / (1000 * 1000 * 1000)) + "go"
+		}
+
+
+		// Commands 
+		const commandList: {name: string, action: any, key: string}[] = [
+				{name: "Start / Stop", action: () => console.log("Start / Stop"), key: "S"},
+		]
+
+		function handleKeydown(event: KeyboardEvent) {
+			const command = commandList.find(command => command.key.toUpperCase() == event.key.toUpperCase())
+			if (command) {
+					// Trigger popup
+					command.action()
+			}
 		}
 </script>
 
@@ -82,10 +93,14 @@ import List from "$lib/components/List.svelte";
 		</InformationOverlay>
 </div>
 
+<PopUp />
+
 
 <footer>
 		<Footer commands={commandList}/>
 </footer>
+
+<svelte:window on:keydown={handleKeydown} />
 
 
 <style>

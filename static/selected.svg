@@ -1,0 +1,13 @@
+<svg width="300" height="150" viewBox="0 0 300 150" xmlns="http://www.w3.org/2000/svg">
+  <!-- Lozenge with extended left side and rgb(73, 70, 61) fill -->
+  <path d="M30 75 L100 25 L200 75 L100 125 Z" fill="rgb(73,70,61)" />
+  
+  <!-- White circle centered in the left part of the lozenge -->
+  <circle cx="65" cy="75" r="10" fill="white" />
+  
+  <!-- Circle at the very top of the right side with rgb(73, 70, 61) fill -->
+  <circle cx="210" cy="40" r="10" fill="rgb(73,70,61)" />
+  
+  <!-- Circle at the very bottom of the right side with rgb(73, 70, 61) fill -->
+  <circle cx="210" cy="110" r="10" fill="rgb(73,70,61)" />
+</svg>

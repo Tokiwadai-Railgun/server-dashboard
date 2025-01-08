@@ -20,7 +20,7 @@
 		.list-container {
 				position: relative;
 				padding: 0.5em;
-				height: 55vh;
+				height: 53vh;
 				width: 25vw;
 				display: flex;
 				justify-content: space-between;

@@ -6,18 +6,52 @@
 
 <footer>
 	<div class="footer-container">
-		<p>{commands[0].name}</p>
+		<div class="commands-container">
+				<div class="command">
+						<span class="key">{commands[0].key}</span>
+						<p>{commands[0].name}</p>
+				</div>
+		</div>
 	</div>
 	<Seperation />
 </footer>
 
 <style>
 		.footer-container {
-				padding-left: 3rem;
+				width: 95%;
 				margin-left: 1em;
-				background-image: linear-gradient(90deg, rgba(var(--element-color), .2), rgba(73,70,61, .2) 14px, 
-				transparent 14px, transparent 20px,
-				rgba(var(--element-color), .2) 20px, rgba(var(--element-color), .2) 23px, transparent 23px);
 				margin-bottom: 2rem;
+				background: var(--bg-overlay-second);
+				box-shadow: 4px 4px 0px var(--overlay-shadow);
+		}
+
+		.commands-container {
+				background-image: linear-gradient(90deg, rgba(var(--element-color), .9), rgba(var(--element-color), .9) 14px, 
+				transparent 14px, transparent 20px,
+				rgba(var(--element-color), .9) 20px, rgba(var(--element-color), .9) 23px, transparent 23px);
+				padding-left: 5em;
+		}
+
+		.command {
+			display: flex;
+			align-items: center;
+			gap: 1em;
+		}
+
+		.key {
+				padding: 0;
+				margin: 0;
+				background: var(--bg-overlay-selected);
+				height: 1.5em;
+				width: 1.5em;
+				font-size: 0.9em;
+				font-weight: bold;
+				color: var(--fg-font-selected);
+				align-items: center;
+				border-radius: 0.2em;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				text-align: center;
 		}
 </style>
