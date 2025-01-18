@@ -1,10 +1,9 @@
-use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
+use actix_web::{cookie::Cookie, get, post, web, App, HttpRequest, HttpResponse, HttpServer, Responder};
 use base32::Alphabet;
 use rand::{rngs::OsRng, RngCore};
 use serde::{Deserialize, Serialize};
 use sqlx::{types::time::OffsetDateTime, PgPool};
 use time::Duration;
-
 
 const DATABASE_URL: &str = "postgres://fuyuki:Walendithas@localhost:5432/server_dashboard";
 // Structs for the user and the session
@@ -87,8 +86,34 @@ async fn hello() -> impl Responder {
 }
 
 #[post("/authorize")]
-async fn authorize(req_body: web::Json<Token>) -> HttpResponse {
-    todo!()
+async fn authorize(req_body: HttpRequest) -> HttpResponse {
+    // Verify if the session exists
+    //
+    match req_body.cookie("session_token") {
+        Some(cookie) => {
+            match PgPool::connect(DATABASE_URL).await {
+                Ok(pool) => {
+                    match sqlx::query!("SELECT COUNT(*) as number from user_session WHERE token = $1;", cookie.value()).fetch_one(&pool).await {
+                        Ok(result) => {
+                            // get the number of rows in the result
+                            if result.number.unwrap_or(0) == 1 {return HttpResponse::Ok().body("Authorization successfull")}
+                        },
+                        Err(e) => {
+                            println!("Error Querrying the session : {}", e)
+                        }
+                    }
+                },
+                Err(e) => {
+                    println!("Error occured connecting to the database : {}", e)
+                }
+            };
+        }
+        None => {return HttpResponse::Unauthorized().body("Not logged in") }
+    }
+
+    
+
+    HttpResponse::Unauthorized().body("Unvalid Session")
 }
 
 #[post("/revoke")]
@@ -127,10 +152,13 @@ async fn login(req_body: web::Json<User>) -> HttpResponse {
             };
             store_session(session).await.expect("Failed storing the session");
             
+            let cookie = Cookie::build("session_token", token).finish();
             // Return session token
-            HttpResponse::Ok().json(Token {
-                token
-            })
+            HttpResponse::Ok().cookie(cookie).finish()
+
+            //     .json(Token {
+            //     token
+            // }) // cookie will be stored by the client
          },
         Err(_) => {
             HttpResponse::InternalServerError().body("Error querrying database")
@@ -148,6 +176,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
         App::new()
             .service(login)
+            .service(authorize)
             .route("/hey", web::get().to(manual_hello))
     })
     .bind(("127.0.0.1", 8080))?
