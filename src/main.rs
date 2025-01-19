@@ -4,20 +4,18 @@ use rand::{rngs::OsRng, RngCore};
 use serde::{Deserialize, Serialize};
 use sqlx::{types::time::OffsetDateTime, PgPool};
 use time::Duration;
+use std::env;
 
-const DATABASE_URL: &str = "postgres://fuyuki:Walendithas@localhost:5432/server_dashboard";
 // Structs for the user and the session
 #[derive(Deserialize)]
 struct User {
-    id: i32,
+    id: i16,
     username: String,
-    email: String,
     password: String,
 }
 
 #[derive(Serialize)]
 struct Session {
-    id: i32,
     user_id: i32,
     token: String,
     expires_at: OffsetDateTime
@@ -26,6 +24,11 @@ struct Session {
 #[derive(Serialize, Deserialize)]
 struct Token {
     token: String
+}
+
+struct VerifyResponse {
+    status: bool,
+    user: User
 }
 
 fn generate_token() -> String{
@@ -38,7 +41,8 @@ fn generate_token() -> String{
 }
 
 async fn store_session(session: Session) -> Result<(), ()> {
-    match PgPool::connect(DATABASE_URL).await {
+    let database_url: String = env::var("DATABASE_URL").unwrap();
+    match PgPool::connect(&database_url).await {
         Ok(pool) => {
             match sqlx::query!("INSERT INTO user_session (user_id, token, expires_at) values ($1, $2, $3)", session.user_id, session.token, session.expires_at).execute(&pool).await {
                 Ok(_) => {Ok(())},
@@ -55,18 +59,20 @@ async fn store_session(session: Session) -> Result<(), ()> {
     }
 }
 // Functions related to db
-async fn verify_credentials(email: &str, password: &str) -> Result<bool, sqlx::Error> {
-    match PgPool::connect(DATABASE_URL).await {
+async fn verify_credentials(username: &str, password: &str) -> Result<VerifyResponse, sqlx::Error> {
+    let database_url: String = env::var("DATABASE_URL").unwrap();
+    match PgPool::connect(&database_url).await {
         Ok(pool) => {
-            match sqlx::query!("SELECT password from users WHERE email = $1;", email).fetch_one(&pool).await {
+            match sqlx::query!("SELECT id, password from users WHERE username = $1;", &username).fetch_one(&pool).await {
                 Ok(result) => {
                     if result.password == password {
-                        return Ok(true)
+                        return Ok(VerifyResponse { status: true, user: User { username: String::from(username), password: String::from(password), id: result.id} });
                     }
                 }
                 Err(e) => {
                     println!("Query Failed: {}", e);
                 }
+            
             }
         }
         Err(e) => {
@@ -74,7 +80,7 @@ async fn verify_credentials(email: &str, password: &str) -> Result<bool, sqlx::E
         }
     }
 
-    Ok(false)
+    Ok(VerifyResponse { status: false, user: User { username: String::from(username), password: String::from(password), id: 0} })
 }
 
 
@@ -87,14 +93,16 @@ async fn hello() -> impl Responder {
 
 #[post("/authorize")]
 async fn authorize(req_body: HttpRequest) -> HttpResponse {
+    let database_url = env::var("DATABASE_URL").unwrap();
     // Verify if the session exists
     //
     match req_body.cookie("session_token") {
         Some(cookie) => {
-            match PgPool::connect(DATABASE_URL).await {
+            match PgPool::connect(&database_url).await {
                 Ok(pool) => {
                     match sqlx::query!("SELECT COUNT(*) as number from user_session WHERE token = $1;", cookie.value()).fetch_one(&pool).await {
                         Ok(result) => {
+                            // to be added : check for expiration date
                             // get the number of rows in the result
                             if result.number.unwrap_or(0) == 1 {return HttpResponse::Ok().body("Authorization successfull")}
                         },
@@ -134,31 +142,26 @@ async fn login(req_body: web::Json<User>) -> HttpResponse {
     // Then query database to search for a user with this email
 
     // If it exist verify the password 
-    let status = verify_credentials(&req_body.email, &req_body.password).await;
+    let status = verify_credentials(&req_body.username, &req_body.password).await;
     match status { 
-        Ok(false) => {
-            HttpResponse::Unauthorized().body("Wrong username or password")
+        Ok(verify_response) if !verify_response.status => {
+            HttpResponse::Unauthorized().body("Not logged in")
         },
-        Ok(true) => { 
+        Ok(verify_response) => { 
+            // if verify_response.status == false return {HttpResponse::Unauthorized("Not logged in")};
             // Generate session token
             let token = generate_token();
             
             // Save session token in database
             let session: Session = Session {
-                id: 0,
-                user_id: req_body.id,
+                user_id: verify_response.user.id.into(),
                 token: token.clone(),
                 expires_at: OffsetDateTime::now_utc() + Duration::new(3 * 60 * 60, 0)
             };
             store_session(session).await.expect("Failed storing the session");
-            
             let cookie = Cookie::build("session_token", token).finish();
             // Return session token
             HttpResponse::Ok().cookie(cookie).finish()
-
-            //     .json(Token {
-            //     token
-            // }) // cookie will be stored by the client
          },
         Err(_) => {
             HttpResponse::InternalServerError().body("Error querrying database")
@@ -167,11 +170,14 @@ async fn login(req_body: web::Json<User>) -> HttpResponse {
 }
 
 async fn manual_hello() -> impl Responder {
+    println!("{}", env::var("DATABASE_URL").unwrap());
     HttpResponse::Ok().body("Hey there!\n")
 }
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    // Loading environment variables
+    dotenv::dotenv().expect("Failed to load .env file");
     println!("Starting web server on port 8080 ...");
     HttpServer::new(|| {
         App::new()
