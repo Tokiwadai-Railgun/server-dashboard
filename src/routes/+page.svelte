@@ -8,7 +8,7 @@ import List from "$lib/components/List.svelte";
 		import SeparationSecondary from "$lib/components/SeparationSecondary.svelte";
 		import Footer from "$lib/components/Footer.svelte";
 		import formatTime from "$lib/functions/formatTime";
-	import PopUp from "$lib/components/PopUp.svelte";
+		import PopUp from "$lib/components/PopUp.svelte";
 
 		let currentlySelected = $state(serverList[0])
 
@@ -93,7 +93,7 @@ import List from "$lib/components/List.svelte";
 		</InformationOverlay>
 </div>
 
-<PopUp />
+<!-- <PopUp /> -->
 
 
 <footer>
