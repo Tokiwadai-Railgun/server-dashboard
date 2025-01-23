@@ -4,7 +4,10 @@ use rand::{rngs::OsRng, RngCore};
 use serde::{Deserialize, Serialize};
 use sqlx::{types::time::OffsetDateTime, PgPool};
 use time::Duration;
+use actix_web::{web, App, HttpResponse, HttpServer, Responder};
 use std::env;
+use actix_cors::Cors;
+pub mod login;
 
 // Structs for the user and the session
 #[derive(Deserialize)]
@@ -180,9 +183,16 @@ async fn main() -> std::io::Result<()> {
     dotenv::dotenv().expect("Failed to load .env file");
     println!("Starting web server on port 8080 ...");
     HttpServer::new(|| {
+        let cors = Cors::default()
+            .allowed_origin("http://localhost:5173")
+            .allowed_methods(vec!["GET", "POST"])
+            .allowed_headers(vec!["Content-Type"])
+            .supports_credentials()
+            .max_age(3600);
         App::new()
             .service(login)
             .service(authorize)
+            .wrap(cors)
             .route("/hey", web::get().to(manual_hello))
     })
     .bind(("127.0.0.1", 8080))?
