@@ -1,10 +1,47 @@
-use actix_web::{cookie::Cookie, get, post, web, App, HttpRequest, HttpResponse, HttpServer, Responder};
+use actix_web::{cookie::Cookie, get, post, web, HttpRequest, HttpResponse, Responder};
 use base32::Alphabet;
-use rand::{rngs::OsRng, RngCore};
+use rand::RngCore;
 use serde::{Deserialize, Serialize};
 use sqlx::{types::time::OffsetDateTime, PgPool};
 use time::Duration;
+use core::fmt;
 use std::env;
+use argon2::{
+    password_hash::{
+        rand_core::OsRng,
+        PasswordHash, PasswordVerifier
+    },
+    Argon2
+};
+
+
+
+// This part is made for error handling, by creating this struct we can handle errors from multiple
+// source, here for example is it made to handle errors from env, argon2 and sqlx.
+
+#[derive(Debug)]
+pub enum AuthError {
+    DatabaseConnectionError,
+    InvalidCredentials,
+    EnvVarError,
+    PasswordHashError,
+}
+
+impl fmt::Display for AuthError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            AuthError::DatabaseConnectionError => write!(f,"Error connecting to the database"),
+            AuthError::InvalidCredentials => write!(f, "Invalid Credentials given"),
+            AuthError::EnvVarError => write!(f, "Not able to recover environment variable"),
+            AuthError::PasswordHashError => write!(f, "Unable to hash the password")
+        }
+        
+    }
+}
+
+impl std::error::Error for AuthError {}
+
+
 
 #[derive(Deserialize)]
 struct User {
@@ -58,15 +95,29 @@ async fn store_session(session: Session) -> Result<(), ()> {
     }
 }
 // Functions related to db
-async fn verify_credentials(username: &str, password: &str) -> Result<VerifyResponse, sqlx::Error> {
+async fn verify_credentials(username: &str, password: &str) -> Result<VerifyResponse, AuthError> {
     let database_url: String = env::var("DATABASE_URL").unwrap();
     match PgPool::connect(&database_url).await {
         Ok(pool) => {
-            match sqlx::query!("SELECT id, password from users WHERE username = $1;", &username).fetch_one(&pool).await {
+            match sqlx::query!("SELECT id, password, salt from users WHERE username = $1;", &username).fetch_one(&pool).await {
                 Ok(result) => {
                     // hash the input password to match the one in the database
-                    if result.password == password {
-                        return Ok(VerifyResponse { status: true, user: User { username: String::from(username), password: String::from(password), id: result.id} });
+
+                    // let argon2 = Argon2::default();
+                    // For account creation, make script to generate passwords
+                    // let salt = SaltString::generate(&mut OsRng);
+                    // let hash = argon2.hash_password(password.as_bytes(), &salt).map_err(|_| AuthError::PasswordHashError)?.to_string();
+                    // println!("Salt {}", salt.to_string());
+                    // println!("Hash {}", hash);
+
+                    let password_hash = PasswordHash::new(&result.password).map_err(|_| AuthError::PasswordHashError)?;
+                    match  Argon2::default().verify_password(password.as_bytes(), &password_hash) {
+                        Ok(_) => {
+                            return Ok(VerifyResponse {status: true, user: User { username: username.to_string(), password: result.password, id: result.id}});
+                        },
+                        Err(_) => {
+                            return Err(AuthError::InvalidCredentials);
+                        }
                     }
                 }
                 Err(e) => {
@@ -76,7 +127,8 @@ async fn verify_credentials(username: &str, password: &str) -> Result<VerifyResp
             }
         }
         Err(e) => {
-            println!("Connection test failed: {}", e)
+            println!("Connection test failed: {}", e);
+            return Err(AuthError::DatabaseConnectionError);
         }
     }
 
@@ -96,12 +148,12 @@ async fn authorize(req_body: HttpRequest) -> HttpResponse {
     let database_url = env::var("DATABASE_URL").unwrap();
     // Verify if the session exists
     //
-    match req_body.cookie("session_token") {
-        Some(cookie) => {
-            println!("{}", cookie);
+    match req_body.headers().get("session_token") {
+        Some(token_header) => {
+            println!("{}", token_header.to_str().unwrap());
             match PgPool::connect(&database_url).await {
                 Ok(pool) => {
-                    match sqlx::query!("SELECT COUNT(*) as number from user_session WHERE token = $1;", cookie.value()).fetch_one(&pool).await {
+                    match sqlx::query!("SELECT COUNT(*) as number from user_session WHERE token = $1;", token_header.to_str().unwrap()).fetch_one(&pool).await {
                         Ok(result) => {
                             // to be added : check for expiration date
                             // get the number of rows in the result
@@ -155,7 +207,6 @@ async fn login(req_body: web::Json<User>) -> HttpResponse {
             // if verify_response.status == false return {HttpResponse::Unauthorized("Not logged in")};
             // Generate session token
             let token = generate_token();
-            
             // Save session token in database
             let session: Session = Session {
                 user_id: verify_response.user.id.into(),
@@ -168,8 +219,22 @@ async fn login(req_body: web::Json<User>) -> HttpResponse {
             // Return session token
             HttpResponse::Ok().cookie(cookie).finish()
          },
-        Err(_) => {
-            HttpResponse::InternalServerError().body("Error querrying database")
+        Err(err) => {
+            match err {
+                AuthError::DatabaseConnectionError => {
+                    HttpResponse::InternalServerError().body("Error connecting to the database")
+                },
+                AuthError::InvalidCredentials => {
+                    HttpResponse::Unauthorized().body("Invalid Credentials")
+                },
+                AuthError::EnvVarError => {
+                    HttpResponse::InternalServerError().body("An Error occured on the server")
+                },
+                AuthError::PasswordHashError => {
+                    println!("Password Hash Error occured");
+                    HttpResponse::InternalServerError().body("An Error occured on the server")
+                }
+            }
         }
     }
 }
