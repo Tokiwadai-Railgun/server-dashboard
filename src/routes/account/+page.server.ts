@@ -8,12 +8,14 @@ export async function load({cookies}) {
 
 		// verify validity of token
 
+		// add cookie to header so the api can read it
 		let response = await fetch("http://localhost:8080/authorize", {
 				method: "POST",
 				credentials: "include",
+				headers: {
+						"session_token": session_token
+				}
 		});
-
-		console.log(response)
 
 		if (response.ok) {
 				return {

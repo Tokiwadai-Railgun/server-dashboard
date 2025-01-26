@@ -1,30 +1,23 @@
-<script>
+<script lang="ts">
+	import type { PageProps } from "../$types";
+
 		let username = $state("")
 		let password = $state("")
 
-		async function handleSubmit() {
-				await fetch("http://localhost:8080/login", {
-						method: "POST",
-						headers: { "Content-Type": "application/json", },
-						credentials: "include",
-						body: JSON.stringify({
-								"username": username,
-								"password": password,
-								"id": 0
-						})
-				});
-		}
-
+		let {data, form}: PageProps = $props()
+		// Transfrom this to a server action
 </script>
 
 <h1>Login</h1>
 
 <!-- Generate the login page: -->
 
-<form on:submit|preventDefault={handleSubmit}>
+<form method="POST">
+		{#if form?.missing}<p>Missing cookie returned bu the server</p>{/if}
+		{#if form?.incorrect}<p>Invalid Credentials</p>{/if}
 		<label>
 				Username
-				<input type="text" name="username" placeholder="Username" required bind:value={username}>
+				<input type="text" name="username" placeholder="Username" required value={form?.username || ''}>
 		</label>
 		<label>
 				Password

@@ -32,7 +32,8 @@
 		position: relative;
 		color: var(--fg-font);
 		text-decoration: none;
-		padding: 0.2em 5em 0.2em 5em;
+		padding: 0.2em 0 0.2em 0;
+		min-width: 15%;
 		background: linear-gradient(to left, var(--bg-overlay) 50%, var(--bg-overlay-selected) 50%) right;
 		background-size: 200%;
 		transition: .3s ease-out;
