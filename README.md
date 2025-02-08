@@ -8,7 +8,7 @@
 
 ### Functionnalities 
 * [x] Log in
-* [ ] Verify token
+* [x] Verify token
 * [ ] Log out
 * [ ] Log out from all devices
 
