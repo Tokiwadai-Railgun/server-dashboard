@@ -1,7 +1,7 @@
-import { redirect } from "@sveltejs/kit"
+import { redirect, type Cookies } from "@sveltejs/kit"
 
 // if no cookies then redirect to /login
-export async function load({cookies}) {
+export async function load({cookies}: {cookies: Cookies}) {
 		const session_token = cookies.get("session_token")
 
 		if (!session_token) redirect(307, '/login')

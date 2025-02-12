@@ -4,7 +4,10 @@ import List from "$lib/components/List.svelte";
 		// Styles for the list snippet
 		import "$lib/styles/borderedList.css"
 
-		import {serverList} from '$lib/data/SampleServers';
+		const props = $props()
+		const serverList = props.data.serverList
+		console.log(serverList)
+
 		import SeparationSecondary from "$lib/components/SeparationSecondary.svelte";
 		import Footer from "$lib/components/Footer.svelte";
 		import formatTime from "$lib/functions/formatTime";
