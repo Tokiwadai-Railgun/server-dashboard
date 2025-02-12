@@ -1,7 +1,13 @@
 use actix_web::{web, App, HttpResponse, HttpServer, Responder};
 use std::env;
 use actix_cors::Cors;
+
+// login module
 pub mod login;
+
+// proxmox module
+pub mod proxmox ;
+use proxmox::proxmox_request;
 
 // Structs for the user and the session
 
@@ -30,6 +36,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(cors)
             .service(login::login)
             .service(login::authorize)
+            .service(proxmox_request::request_vm_list)
             .route("/hey", web::get().to(manual_hello))
     })
     .bind(("127.0.0.1", 8080))?

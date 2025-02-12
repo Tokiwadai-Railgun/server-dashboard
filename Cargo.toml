@@ -10,6 +10,8 @@ argon2 = "0.5.3"
 base32 = "0.5.1"
 dotenv = "0.15.0"
 rand = "0.8.5"
+reqwest = { version = "0.12.12", features = ["json"] }
 serde = "1.0.217"
+serde_json = "1.0.138"
 sqlx = { version = "0.8.3", features = ["postgres", "runtime-tokio-rustls", "time"]}
 time = { version = "0.3", features = ["serde"]}
