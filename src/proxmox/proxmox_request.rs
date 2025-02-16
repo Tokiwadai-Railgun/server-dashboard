@@ -1,9 +1,8 @@
 use actix_web::http::header::ContentType;
-use actix_web::web::Json;
 use actix_web::HttpResponse;
 use actix_web::{HttpRequest, post, get};
 
-use crate::proxmox::proxmox_client;
+use crate::proxmox::proxmox_client::{self, CompletedVmInfo};
 
 use super::proxmox_client::ProxmoxClient;
 
@@ -33,17 +32,15 @@ pub async fn request_vm_list(_req: HttpRequest) -> HttpResponse {
     //     .build().unwrap();
     let proxmox = ProxmoxClient::new().unwrap();
 
-    let response = proxmox.client
-        .get(format!("{}{}", proxmox.base_url,"/nodes/owomnipotent/qemu"))
-        .send().await;
+    let response = proxmox.get_vm_list().await;
 
     match response {
         Ok(data) => {
-            let json: proxmox_client::VMInfoResponse = data.json().await.unwrap();
-
+            let json = serde_json::to_value(data).unwrap();
             return HttpResponse::Ok()
                 .content_type(ContentType::json())
                 .json(json);
+
 
         },
         Err(e) => {println!("Error occured : {}", e)}
