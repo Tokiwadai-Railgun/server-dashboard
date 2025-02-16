@@ -1,19 +1,20 @@
 <script lang="ts">
 		import InformationOverlay from "$lib/components/InformationOverlay.svelte";
-import List from "$lib/components/List.svelte";
+		import List from "$lib/components/List.svelte";
 		// Styles for the list snippet
 		import "$lib/styles/borderedList.css"
-
-		const props = $props()
-		const serverList = props.data.serverList
-		console.log(serverList)
-
 		import SeparationSecondary from "$lib/components/SeparationSecondary.svelte";
 		import Footer from "$lib/components/Footer.svelte";
 		import formatTime from "$lib/functions/formatTime";
 		import PopUp from "$lib/components/PopUp.svelte";
+			import type { VMInfo } from "$lib/data/types/vms";
 
-		let currentlySelected = $state(serverList[0])
+		const props: {data: {serverList: VMInfo[]}} = $props();
+		const serverList = props.data.serverList;
+		console.log("Server list : ", serverList)
+
+		let currentlySelected: VMInfo = $state(serverList[0])
+
 
 		function changeFocus({element}: {element: any}) {
 				currentlySelected = serverList.find((server: any) => server.name == element.name) || serverList[0]
@@ -22,7 +23,6 @@ import List from "$lib/components/List.svelte";
 		function formatStorage(storage: number) { // oc
 				return Math.round(storage / (1000 * 1000 * 1000)) + "go"
 		}
-
 
 		// Commands 
 		const commandList: {name: string, action: any, key: string}[] = [
@@ -36,6 +36,10 @@ import List from "$lib/components/List.svelte";
 					command.action()
 			}
 		}
+
+
+
+		// ----- Get specific vm information -----
 </script>
 
 <h1>Dashboard</h1>
@@ -61,25 +65,25 @@ import List from "$lib/components/List.svelte";
 								<span>Status</span>
 								<span>{currentlySelected.status}</span>
 						</div>
-						{#each currentlySelected.ip_addresses as ip}
+						{#each currentlySelected.ip as ip}
 								<div class="data">
-										<span>IP</span>
-										<span>{ip}</span>
+										<span>{ip.interface_name}</span>
+										<span>{ip.ip_address}</span>
 								</div>
 						{/each}
 						<SeparationSecondary />
 						<div class="data">
 								<span>RAM</span>
-								<span>{formatStorage(currentlySelected.memory_usage)} of {formatStorage(currentlySelected.max_memory * 1000 * 1000)} ({Math.round((currentlySelected.memory_usage || 0) * 100 / (currentlySelected.max_memory * 1000 * 1000))}%)</span>
+								<span>{formatStorage(currentlySelected.mem.current_mem)} of {formatStorage(currentlySelected.mem.max_mem)} ({Math.round((currentlySelected.mem.current_mem || 0) * 100 / (currentlySelected.mem.max_mem * 1000 * 1000 * 1000))}%)</span>
 						</div>
 						<div class="data">
 								<span>CPU</span>
-								<span>{(currentlySelected.cpu_usage || 0) / currentlySelected.max_cpu}% of {currentlySelected.max_cpu} cores</span>
+								<span>{Number((currentlySelected.cpu.current_cpu.toFixed(2)) || 0) / currentlySelected.cpu.max_cpu}% of {currentlySelected.cpu.max_cpu} cores</span>
 						</div>
 						{#each currentlySelected.storage as disk, count}
 								<div class="data">
-										<span>{disk.disk}</span> <!-- Name -->
-										<span>{formatStorage(disk.storage_used)} of {formatStorage(disk.storage_max)}</span>
+										<span>{disk.name}</span> <!-- Name -->
+										<span>{formatStorage(disk.current_disk)} of {formatStorage(disk.max_disk)}</span>
 								</div> 
 						{/each}
 

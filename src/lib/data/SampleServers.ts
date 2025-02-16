@@ -1,5 +1,5 @@
 export interface StorageInfo {
-	disk: string;
+  disk: string;
   storage_max: number;  // in bytes
   storage_used: number; // in bytes
 }

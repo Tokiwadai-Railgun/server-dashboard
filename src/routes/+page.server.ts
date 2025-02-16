@@ -1,3 +1,4 @@
+import type { VMList } from "$lib/data/types/vms";
 import { redirect, type Cookies } from "@sveltejs/kit";
 
 export async function load({cookies}: {cookies: Cookies}) {
@@ -26,10 +27,10 @@ export async function load({cookies}: {cookies: Cookies}) {
 		}
 	})
 
-	let json = await vmListQuery.json()
+	let json: {data: VMList[]} = await vmListQuery.json()
 
 	if (vmListQuery.ok) {
-		return {serverList: json.data}
+		return {serverList: json}
 	}
 
 	
