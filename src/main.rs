@@ -9,6 +9,9 @@ pub mod login;
 pub mod proxmox ;
 use proxmox::proxmox_request;
 
+// Storage
+mod storage;
+
 // Structs for the user and the session
 
 async fn manual_hello() -> impl Responder {

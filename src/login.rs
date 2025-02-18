@@ -94,7 +94,7 @@ async fn store_session(session: Session) -> Result<(), ()> {
         }
     }
 }
-// Functions related to db
+// Functions related to dblogin
 async fn verify_credentials(username: &str, password: &str) -> Result<VerifyResponse, AuthError> {
     let database_url: String = env::var("DATABASE_URL").unwrap();
     match PgPool::connect(&database_url).await {

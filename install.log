@@ -1,0 +1,9 @@
+[17:42:09 2025-02-18] FETCHING Version 2.39.3
+[17:42:09 2025-02-18] CREATING /home/fuyuki/.spicetify
+[17:42:09 2025-02-18] DOWNLOADING https://github.com/spicetify/cli/releases/download/v2.39.3/spicetify-2.39.3-linux-amd64.tar.gz
+[17:42:10 2025-02-18] EXTRACTING /home/fuyuki/.spicetify/spicetify.tar.gz
+[17:42:10 2025-02-18] SETTING EXECUTABLE PERMISSIONS TO /home/fuyuki/.spicetify/spicetify
+[17:42:10 2025-02-18] REMOVING /home/fuyuki/.spicetify/spicetify.tar.gz
+[17:42:10 2025-02-18] APPENDING /home/fuyuki/.spicetify to PATH in /home/fuyuki/.zshrc
+[17:42:10 2025-02-18] spicetify v2.39.3 was installed successfully to /home/fuyuki/.spicetify
+[17:42:10 2025-02-18] Run 'spicetify --help' to get started
