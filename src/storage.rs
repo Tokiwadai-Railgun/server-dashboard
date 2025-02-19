@@ -2,6 +2,7 @@ use actix_web::get;
 use actix_web::{HttpRequest, HttpResponse};
 
 mod file_client;
+mod types;
 use file_client::StorageClient;
 
 #[get("/files")]
