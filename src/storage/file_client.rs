@@ -1,7 +1,8 @@
 use std::str::FromStr;
+use serde::Serialize;
 
 pub struct StorageClient {
-    name: String
+    pub name: String
 }
 
 impl StorageClient {
@@ -11,7 +12,7 @@ impl StorageClient {
         }
     }
 
-    pub fn get_file_list() -> Vec<Metadata> {
+    pub fn get_file_list(&self) -> Vec<Metadata> {
         // write behavior to recieve all files
 
         // sample files for now
@@ -21,11 +22,11 @@ impl StorageClient {
                 name: "test-image".to_string(),
                 path: "test/test-image.png".to_string(),
                 size: 12000000,
-                description: "A sample file".to_string(),
+                description: "A sample image".to_string(),
                 file_type: FileType::from_str("Image").unwrap()
             },
             Metadata {
-                id: 0,
+                id: 1,
                 name: "test-word".to_string(),
                 path: "test/test-word.docx".to_string(),
                 size: 12000000,
@@ -46,6 +47,7 @@ impl StorageClient {
     }
 }
 
+#[derive(Debug, Serialize)]
 pub struct Metadata {
     id: u64,
     name: String,
@@ -55,6 +57,7 @@ pub struct Metadata {
     file_type: FileType
 }
 
+#[derive(Debug, Serialize)]
 pub enum FileType {
     Image,
     Word,

@@ -40,7 +40,10 @@ async fn main() -> std::io::Result<()> {
             .service(login::login)
             .service(login::authorize)
             .service(proxmox_request::request_vm_list)
-            .route("/hey", web::get().to(manual_hello))
+            .service(
+                web::scope("/storage")
+                    .service(storage::get_files)
+            )
     })
     .bind(("127.0.0.1", 8080))?
     .run()
