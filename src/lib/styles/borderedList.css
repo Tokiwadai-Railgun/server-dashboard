@@ -36,7 +36,7 @@
 
 .list-item:hover, .list-item:focus {
 		outline: none;
-		color: var(--fg-font-selected);
+		color: ar(--fg-font-selected);
 		background-position: left;
 }
 

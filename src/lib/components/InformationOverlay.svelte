@@ -15,7 +15,7 @@
 <style>
 		.data-overlay {
 				width: 30vw;
-				margin-right: 4em;
+				/* margin-right: 4em;*/
 				background: var(--bg-overlay-second);
 				height: 53vh;
 				overflow: auto;

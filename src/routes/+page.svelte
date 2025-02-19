@@ -6,12 +6,10 @@
 		import SeparationSecondary from "$lib/components/SeparationSecondary.svelte";
 		import Footer from "$lib/components/Footer.svelte";
 		import formatTime from "$lib/functions/formatTime";
-		import PopUp from "$lib/components/PopUp.svelte";
-			import type { VMInfo } from "$lib/data/types/vms";
+		import type { VMInfo } from "$lib/data/types/vms";
 
 		const props: {data: {serverList: VMInfo[]}} = $props();
 		const serverList = props.data.serverList;
-		console.log("Server list : ", serverList)
 
 		let currentlySelected: VMInfo = $state(serverList[0])
 
@@ -89,10 +87,6 @@
 
 						<SeparationSecondary />
 						<div class="data">
-								<span>OS</span>
-								<span>{currentlySelected.os_type}</span>
-						</div>
-						<div class="data">
 								<span>Uptime</span>
 								<span>{formatTime(currentlySelected.uptime)}</span>
 						</div>
@@ -112,6 +106,7 @@
 
 <style>
 		.container {
+				padding-right: 4em;
 				display: flex;
 				justify-content: space-between;
 		}

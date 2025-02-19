@@ -81,23 +81,24 @@
 		transition: transform 0.3s ease-out, opacity 0.1s ease-out 0s;
 	}
 
-	.current::after {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        /* This height will create the extension effect */
-        height: calc(100% + 25px);
-        /* Put it behind the content */
-        z-index: -1;
-        background-color: var(--bg-overlay-selected);
-        /* Add transition for smooth height change */
-        transition: height 0.3s ease-out;
-    }
+		.current::after {
+				content: '';
+				position: absolute;
+				left: 0;
+				top: 0;
+				width: 100%;
+				/* This height will create the extension effect */
+				height: calc(100% + 25px);
+				/* Put it behind the content */
+				z-index: -1;
+				background-color: var(--bg-overlay-selected);
+				/* Add transition for smooth height change */
+				transition: height 0.3s ease-out;
+		}
 
 	.current {
 		color: var(--fg-font-selected);
 	}
+
 
 </style>
