@@ -1,4 +1,5 @@
 import { redirect, type Cookies } from "@sveltejs/kit"
+import { API_URL } from "$env/static/private"
 
 // if no cookies then redirect to /login
 export async function load({cookies}: {cookies: Cookies}) {
@@ -9,7 +10,7 @@ export async function load({cookies}: {cookies: Cookies}) {
 		// verify validity of token
 
 		// add cookie to header so the api can read it
-		let response = await fetch("http://localhost:8080/authorize", {
+		let response = await fetch(API_URL + "/authorize", {
 				method: "POST",
 				credentials: "include",
 				headers: {

@@ -1,5 +1,6 @@
 import { goto } from "$app/navigation";
 import { fail, redirect, type Actions } from "@sveltejs/kit";
+import { API_URL } from "$env/static/private"
 
 export const actions = {
 		default: async({cookies, request}) => {
@@ -7,7 +8,7 @@ export const actions = {
 				const username = data.get('username')
 
 				// query api here
-				let response = await fetch("http://localhost:8080/login", {
+				let response = await fetch(API_URL + "/login", {
 						method: "POST",
 						headers: { "Content-Type": "application/json", },
 						credentials: "include",

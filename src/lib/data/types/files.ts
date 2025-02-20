@@ -4,5 +4,5 @@ export interface File {
 	path: string,
 	size: number, // In bytes
 	description: string,
-	type: string
+	file_type: string
 }

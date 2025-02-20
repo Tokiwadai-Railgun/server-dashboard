@@ -1,11 +1,15 @@
 import type { VMList } from "$lib/data/types/vms";
-import { redirect, type Cookies } from "@sveltejs/kit";
+import { redirect, type Cookies, type ServerLoad } from "@sveltejs/kit";
+import { throws } from "assert";
+import { API_URL } from "$env/static/private"
+import type { PageServerLoad } from "./$types";
 
-export async function load({cookies}: {cookies: Cookies}) {
+export const load: PageServerLoad = async ({ cookies }: { cookies: Cookies})  => {
+	if (API_URL == undefined) throw Error("API_URL env var not defined")
 	const session_token = cookies.get("session_token")
 	if (!session_token) redirect(307, "/login")
 
-	let response = await fetch("http://localhost:8080/authorize", {
+	let response = await fetch(API_URL + "/authorize", {
 		method: "POST",
 		credentials: "include",
 		headers: {
@@ -19,7 +23,7 @@ export async function load({cookies}: {cookies: Cookies}) {
 	}
 
 	// ----- Get list of vms and export it -----
-	let vmListQuery = await fetch("http://localhost:8080/proxmox/vms", {
+	let vmListQuery = await fetch(API_URL + "/proxmox/vms", {
 		method: "GET",
 		credentials: "include",
 		headers: {
@@ -33,5 +37,4 @@ export async function load({cookies}: {cookies: Cookies}) {
 		return {serverList: json}
 	}
 
-	
 }

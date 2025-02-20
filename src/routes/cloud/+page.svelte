@@ -35,6 +35,9 @@
 						<img class="image" src="/icons/nier_placeholder.png" alt="Placeholder" />
 						<!-- Display image if possible else display a placeholder -->
 						<SeparationSecondary />
+						<div class="data bold">
+								<span>{currentlySelected?.description}</span>
+						</div>
 						<!-- Description -->
 				{/snippet}
 		</InformationOverlay>
