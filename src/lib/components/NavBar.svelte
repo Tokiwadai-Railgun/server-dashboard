@@ -11,6 +11,7 @@
 			href={`${item.to}`} 
 			tabindex={item.to == tab ? -1 : count + 1} 
 			class={item.to == tab ? "current" : "item"}
+			data-sveltekit-preload-data="hover"
 		>
 			<span>{item.title}</span>
 		</a>

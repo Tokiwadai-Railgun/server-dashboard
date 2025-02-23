@@ -7,10 +7,12 @@
 <footer>
 	<div class="footer-container">
 		<div class="commands-container">
+			{#each commands as command }
 				<div class="command">
-						<span class="key">{commands[0].key}</span>
-						<p>{commands[0].name}</p>
+						<span class="key">{command.key}</span>
+						<p>{command.name}</p>
 				</div>
+			{/each}
 		</div>
 	</div>
 	<Seperation />
@@ -26,6 +28,8 @@
 		}
 
 		.commands-container {
+				display: flex;
+				gap: 3em;
 				background-image: linear-gradient(90deg, rgba(var(--element-color), .9), rgba(var(--element-color), .9) 14px, 
 				transparent 14px, transparent 20px,
 				rgba(var(--element-color), .9) 20px, rgba(var(--element-color), .9) 23px, transparent 23px);
@@ -35,7 +39,7 @@
 		.command {
 			display: flex;
 			align-items: center;
-			gap: 1em;
+			gap: 0.5em;
 		}
 
 		.key {

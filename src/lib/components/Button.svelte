@@ -1,11 +1,11 @@
 <script lang="ts">
 	import type { Snippet } from "svelte";
 
-	let {children}: {children: Snippet} = $props()
+	let {children, onclick}: {children: Snippet, onclick: () => void} = $props()
 </script>
 
 <div class="button-container">
-	<button>{@render children()}</button>
+	<button onclick={onclick}>{@render children()}</button>
 </div>
 
 <style>

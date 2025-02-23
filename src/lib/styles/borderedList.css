@@ -36,7 +36,7 @@
 
 .list-item:hover, .list-item:focus {
 		outline: none;
-		color: ar(--fg-font-selected);
+		color: var(--fg-font-selected);
 		background-position: left;
 }
 
@@ -48,7 +48,7 @@
 		background-color: var(--bg-overlay-selected);
 		transform: translateY(0);
 		opacity: 0;
-		transition: transform 0.3s ease-out, opacity 0s ease-out 0.2s;
+		transition: transform 0.2s ease-out, opacity 0s ease-out 0.2s;
 }
 
 .list-item::after{
@@ -62,13 +62,13 @@
 .list-item:hover::after, .list-item:focus::after {
 		transform: translateY(3px);
 		opacity: 1;
-		transition: transform 0.3s ease-out, opacity 0.1s ease-out 0s;
+		transition: transform 0.2s ease-out, opacity 0.1s ease-out 0s;
 }
 
 .list-item:hover::before, .list-item:focus::before {
 		transform: translateY(-3px);
 		opacity: 1;
-		transition: transform 0.3s ease-out, opacity 0.1s ease-out 0s;
+		transition: transform 0.2s ease-out, opacity 0.1s ease-out 0s;
 }
 
 .item-container {

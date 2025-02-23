@@ -7,11 +7,22 @@
 		import Footer from "$lib/components/Footer.svelte";
 		import formatTime from "$lib/functions/formatTime";
 		import type { VMInfo } from "$lib/data/types/vms";
+		import PopUp from "$lib/components/PopUp.svelte";
 
 		const props: {data: {serverList: VMInfo[]}} = $props();
 		const serverList = props.data.serverList;
 
+		// ----- Changing when switching to prod -----
+		const API_URL = "http://localhost:8080" // TODO: TO be changed when switching to PROD
+		// ----- Changing when switching to prod -----
+
+
 		let currentlySelected: VMInfo = $state(serverList[0])
+
+		let open = $state(false)
+
+		let message = $state("")
+		let messageOpen = $state(false)
 
 
 		function changeFocus({element}: {element: any}) {
@@ -24,9 +35,51 @@
 
 		// Commands 
 		const commandList: {name: string, action: any, key: string}[] = [
-				{name: "Start / Stop", action: () => console.log("Start / Stop"), key: "S"},
+				{name: "Start / Stop", action: toogleClick, key: "S"},
 		]
 
+		// ------- Command Handling --------
+		async function toogleVM() {
+				const currentlyRunning = currentlySelected.status == "running"
+				console.log("fetch")
+				const result = await fetch(`${API_URL}/proxmox/toogle/${currentlySelected.vmid}/${currentlyRunning}`);
+
+				console.log(result)
+				if (result.status == 200) {
+						message = "Action Success" 
+						messageOpen = true
+				} else {
+						message = "Action Failed : " + result
+						messageOpen = true
+				}
+				open = false
+		}
+
+		async function toogleClick() {
+				open = true
+		}
+
+		// choices for the popup
+		const choices = [
+				{
+						name: "Yes",
+						action: toogleVM
+				},
+				{
+						name: "No",
+						action: () => {open = false}
+				}
+		]
+
+		const messageChoices = [
+				{
+						name: "Ok",
+						action: () => {messageOpen = false}
+				},
+
+		]
+
+		// toogle command when pressing the key
 		function handleKeydown(event: KeyboardEvent) {
 			const command = commandList.find(command => command.key.toUpperCase() == event.key.toUpperCase())
 			if (command) {
@@ -34,31 +87,30 @@
 					command.action()
 			}
 		}
-
-
-
-		// ----- Get specific vm information -----
 </script>
 
-<h1>Dashboard</h1>
+<h1>Proxmox</h1>
 
-<div class="container content">
-		<List elements={serverList} bind:selection={currentlySelected}>
-				{#snippet body({element, tabindex}: {element: any, tabindex: any})}
-				<div class="item-container">
-						<button class:selected={element.name == currentlySelected.name} class="list-item" tabindex="0" onclick={() => changeFocus({element})}>
-								<span 
-										class="element" 
-										class:powered={element.status == "running"}
-								>{element.name}</span>
-						</button>
-				</div>
+{#await props}
+		<h3 class="content">Loading data</h3>
+{:then}
+		<div class="container content">
+				<List elements={serverList} bind:selection={currentlySelected}>
+						{#snippet body({element, tabindex}: {element: any, tabindex: any})}
+						<div class="item-container">
+								<button class:selected={element.name == currentlySelected.name} class="list-item" tabindex="0" onclick={() => changeFocus({element})}>
+										<span 
+											class="element" 
+											class:powered={element.status == "running"}
+											>{element.name}</span>
+								</button>
+						</div>
 
-				{/snippet}
-		</List>
+						{/snippet}
+				</List>
 
-		<InformationOverlay title={currentlySelected.name} --square-color={currentlySelected.status == "running" ? "#8B9A7D" : ""}>
-				{#snippet content()}
+				<InformationOverlay title={currentlySelected.name} --square-color={currentlySelected.status == "running" ? "#8B9A7D" : ""}>
+						{#snippet content()}
 						<div class="data">
 								<span>Status</span>
 								<span>{currentlySelected.status}</span>
@@ -78,23 +130,27 @@
 								<span>CPU</span>
 								<span>{Number((currentlySelected.cpu.current_cpu.toFixed(2)) || 0) / currentlySelected.cpu.max_cpu}% of {currentlySelected.cpu.max_cpu} cores</span>
 						</div>
-						{#each currentlySelected.storage as disk, count}
+						{#each currentlySelected.storage as disk}
 								<div class="data">
 										<span>{disk.name}</span> <!-- Name -->
 										<span>{formatStorage(disk.current_disk)} of {formatStorage(disk.max_disk)}</span>
 								</div> 
 						{/each}
 
-						<SeparationSecondary />
+						<!-- <SeparationSecondary /> -->
 						<div class="data">
 								<span>Uptime</span>
 								<span>{formatTime(currentlySelected.uptime)}</span>
 						</div>
-				{/snippet}
-		</InformationOverlay>
-</div>
+						{/snippet}
+				</InformationOverlay>
+		</div>
+{:catch}
+		<p class="content">Error occured querrying database</p>
+{/await}
 
-<!-- <PopUp /> -->
+<PopUp open={open} choices={choices} title="System Warning" message= {`Do you want to shudown vm : ${currentlySelected.name} ?`} />
+<PopUp open={messageOpen} choices={messageChoices} title="System Message" message={message} />
 
 
 <footer>
