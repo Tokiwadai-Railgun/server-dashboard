@@ -61,19 +61,35 @@ impl StorageClient {
             }
         }
 
-        // Then send the file to the server via sftp
     }
 
     pub async fn save_file(&self, file_data: FileData) -> Result<bool, reqwest::Error> {
         let client = Client::new();
 
-        client
-            .post(format!("{STORAGE_API_URL}/upload"))
+        println!("Saving file");
+        let response = client
+            .post(format!("{}/upload", STORAGE_API_URL))
+            .json(&file_data)
             .header("TOKEN", file_data.user_data.token)
             .send()
-            .await?;
+            .await;
 
-        Ok(true)
+
+        println!("{:?}", response);
+
+        match response {
+            Ok(response) => {
+                if response.status() != 200 {
+                    return Ok(false)
+                }
+                println!("File saved");
+                Ok(true)
+            },
+            Err(e) => {
+                println!("Error saving file : {}", e);
+                Err(e)
+            }
+        }
     }
 
     pub fn get_file_list(&self) -> Vec<Metadata> {

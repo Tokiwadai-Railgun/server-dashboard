@@ -48,11 +48,13 @@ impl ToString for FileType {
     }
 }
 
+#[derive(Serialize)]
 pub struct UserData {
     pub user_id: i16,
     pub token: String
 }
 
+#[derive(Serialize)]
 pub struct FileData {
     pub user_data: UserData,
     pub file_name: String,

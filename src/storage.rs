@@ -51,7 +51,11 @@ async fn upload(request: HttpRequest, request_body: web::Json<File>) -> HttpResp
     };
 
     match client.save_file(file_data).await {
-        Ok(_) => {},
+        Ok(status) => {
+            if status != true {
+                return HttpResponse::InternalServerError().body("Errr occured when saving file")
+            }
+        },
         Err(e) => {
             println!("Error occured when saving file : {}", e);
             return HttpResponse::InternalServerError().body("Error occured when saving file")
