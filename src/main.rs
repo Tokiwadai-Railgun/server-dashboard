@@ -1,28 +1,15 @@
-use actix_web::{self, get, post, App, HttpResponse, HttpServer, Responder, web};
-use serde::{Deserialize, Serialize};
+use actix_web::{self, get, App, HttpResponse, HttpServer, Responder};
+
+mod file_handler;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     println!("Starting server on port 8080");
     HttpServer::new(|| {
         App::new()
-            .service(store_file)
+            .service(file_handler::upload_file)
     })
-    .bind(("0.0.0.0", 8080))?
+    .bind(("0.0.0.0", 8090))?
     .run()
     .await
-}
-
-
-
-#[derive(Debug, Serialize)]
-struct File {
-    user_id: i16,
-    file_name: String,
-    content: String
-}
-
-#[post("/store")]
-async fn store_file(req_body: web::Json<File>) -> HttpResponse {
-    HttpResponse::Ok().body("Test")
 }
