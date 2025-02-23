@@ -1,9 +1,18 @@
 use std::str::FromStr;
 use std::env;
 
+use crate::storage::types::UserData;
+
 use super::types;
+use actix_web::{post, web, HttpRequest, HttpResponse};
+use reqwest::Client;
 use sqlx::PgPool;
-use types::{FileType, Metadata};
+use types::{FileType, Metadata, FileData, File};
+
+
+// CONSTS And Initialisation 
+const STORAGE_API_URL: &str = "http://localhost:8090";
+
 
 pub struct StorageClient {
     pub _name: String
@@ -24,6 +33,7 @@ impl std::fmt::Display for QueryResponse {
     }
 }
 
+
 impl StorageClient {
     pub fn new() -> Self {
         Self {
@@ -31,9 +41,8 @@ impl StorageClient {
         }
     }
 
-    pub async fn upload_file(&self, metadata: Metadata, content: String, owner_id: i16) -> Result<bool, QueryResponse>  {
+    pub async fn save_metadata(&self, metadata: Metadata, owner_id: i16) -> Result<bool, QueryResponse>  {
         // First save the metadata to the database
-
         let database_url: String = env::var("DATABASE_URL").unwrap();
         match PgPool::connect(&database_url).await {
             Ok(pool) => {
@@ -53,6 +62,18 @@ impl StorageClient {
         }
 
         // Then send the file to the server via sftp
+    }
+
+    pub async fn save_file(&self, file_data: FileData) -> Result<bool, reqwest::Error> {
+        let client = Client::new();
+
+        client
+            .post(format!("{STORAGE_API_URL}/upload"))
+            .header("TOKEN", file_data.user_data.token)
+            .send()
+            .await?;
+
+        Ok(true)
     }
 
     pub fn get_file_list(&self) -> Vec<Metadata> {
@@ -88,5 +109,3 @@ impl StorageClient {
         result
     }
 }
-
-

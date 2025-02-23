@@ -1,4 +1,4 @@
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
 use std::string::ToString;
 use std::str::FromStr;
 
@@ -12,7 +12,7 @@ pub struct Metadata {
     pub file_type: FileType
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum FileType {
     Image,
     Word,
@@ -46,4 +46,24 @@ impl ToString for FileType {
             FileType::Pdf => String::from("Pdf")
         }
     }
+}
+
+pub struct UserData {
+    pub user_id: i16,
+    pub token: String
+}
+
+pub struct FileData {
+    pub user_data: UserData,
+    pub file_name: String,
+    pub file_content: String
+}
+
+#[derive(Debug, Deserialize)]
+pub struct File {
+    pub file_name: String,
+    pub file_size: u64,
+    pub description: String,
+    pub file_type: FileType,
+    pub file_content: String
 }

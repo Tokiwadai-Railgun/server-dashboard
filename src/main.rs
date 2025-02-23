@@ -42,6 +42,7 @@ async fn main() -> std::io::Result<()> {
             .service(proxmox_request::request_vm_list)
             .service(
                 web::scope("/storage")
+                    .service(storage::upload)
                     .service(storage::get_files)
             )
     })
