@@ -1,4 +1,3 @@
-import { goto } from "$app/navigation";
 import { fail, redirect, type Actions } from "@sveltejs/kit";
 import { API_URL } from "$env/static/private"
 

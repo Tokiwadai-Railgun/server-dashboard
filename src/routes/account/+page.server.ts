@@ -1,3 +1,4 @@
+import type { Actions } from "./$types"
 import { redirect, type Cookies } from "@sveltejs/kit"
 import { API_URL } from "$env/static/private"
 
@@ -29,3 +30,22 @@ export async function load({cookies}: {cookies: Cookies}) {
 		}
 }
 
+export const actions = {
+		login: async ({cookies}: {cookies: Cookies}) => {
+				console.log("logging out")
+				let token = cookies.get("session_token");
+				console.log(token)
+				
+				if (token == null) return
+
+				const response = await fetch("http://localhost:8070/logout", {
+						headers: {"Authorization": token},
+						method: "POST"
+				})
+
+				if (response.status == 200) {
+						console.log("Redirecting")
+						redirect(302, "/login")
+				}
+		}
+}

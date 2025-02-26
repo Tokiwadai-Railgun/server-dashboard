@@ -1,6 +1,5 @@
 import type { VMList } from "$lib/data/types/vms";
 import { redirect, type Cookies, type ServerLoad } from "@sveltejs/kit";
-import { throws } from "assert";
 import { API_URL } from "$env/static/private"
 import type { PageServerLoad } from "./$types";
 
