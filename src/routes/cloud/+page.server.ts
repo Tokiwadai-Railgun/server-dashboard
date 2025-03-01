@@ -1,4 +1,4 @@
-import { redirect, type Cookies } from "@sveltejs/kit";
+import { fail, redirect, type Cookies } from "@sveltejs/kit";
 import { API_URL } from "$env/static/private"
 
 export async function load({cookies}: {cookies: Cookies}) {
@@ -23,7 +23,8 @@ export async function load({cookies}: {cookies: Cookies}) {
 				method: "GET",
 				credentials: "include",
 				headers: {
-						"session_token": session_token
+						"Authorization": session_token,
+						"user_id": "1"
 				}
 		})
 
@@ -32,5 +33,21 @@ export async function load({cookies}: {cookies: Cookies}) {
 
 		if (fileListQuery.ok) {
 				return {fileList: json}
+		}
+}
+
+export const actions = {
+		submit: async({ request }: {request: Request}) => {
+				// TODO: Get the file content and send request to api to send the file
+				const data = await request.formData();
+				console.log(data)
+				const file = data.get("file-input");
+
+				console.log(file);
+				const acceptedFileTypes = [".docx", ".pdf", ".xls", ".xlsx", ".doc", ".png", ".jpg", ".jpeg", ".gif", ".webp"];
+
+				if (!acceptedFileTypes) return fail(401, {error:true})
+
+				redirect(302, "/cloud")
 		}
 }

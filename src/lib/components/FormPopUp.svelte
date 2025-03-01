@@ -3,7 +3,7 @@
 		import Button from "./Button.svelte";
 		import SeparationSecondary from "./SeparationSecondary.svelte";
 
-		const {choices, title, open, body}: {choices: {name: string, action: () => void}[], title: string, open: boolean, body: Snippet} = $props()
+		const {choices, title, open, body}: {choices:  string[], title: string, open: boolean, body: Snippet} = $props()
 </script>
 <div class="occlusion" class:visible={open}>
 		<div class="message">
@@ -12,7 +12,9 @@
 				<SeparationSecondary/>
 				<div class="buttons">
 						{#each choices as choice}
-								<Button form={false} onclick={choice.action}>{choice.name}</Button>
+								<form action={`?/${choice}`} method="POST">
+										<Button form={true} onclick={() => {}}>{choice}</Button>
+								</form>
 						{/each}
 				</div>
 		</div>

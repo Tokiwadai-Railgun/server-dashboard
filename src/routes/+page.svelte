@@ -13,7 +13,7 @@
 		const serverList = props.data.serverList;
 
 		// ----- Changing when switching to prod -----
-		const API_URL = "http://localhost:8080" // TODO: TO be changed when switching to PROD
+		const API_URL = "http://localhost:8070" // TODO: TO be changed when switching to PROD
 		// ----- Changing when switching to prod -----
 
 
@@ -23,7 +23,6 @@
 
 		let message = $state("")
 		let messageOpen = $state(false)
-
 
 		function changeFocus({element}: {element: any}) {
 				currentlySelected = serverList.find((server: any) => server.name == element.name) || serverList[0]
@@ -149,8 +148,17 @@
 		<p class="content">Error occured querrying database</p>
 {/await}
 
-<PopUp open={open} choices={choices} title="System Warning" message= {`Do you want to shudown vm : ${currentlySelected.name} ?`} />
-<PopUp open={messageOpen} choices={messageChoices} title="System Message" message={message} />
+<PopUp open={open} choices={choices} title="System Warning">
+		{#snippet body()}
+				<p>Do you want to shutdown vm : {currentlySelected.name}</p>	
+		{/snippet}
+</PopUp>
+
+<PopUp open={messageOpen} choices={messageChoices} title="System Message">
+		{#snippet body()}
+				<p>{message}</p>
+		{/snippet}
+</PopUp>
 
 
 <footer>
@@ -178,5 +186,3 @@
 		}
 
 </style>
-
-

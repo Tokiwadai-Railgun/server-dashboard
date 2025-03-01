@@ -6,68 +6,119 @@
 		import type { File } from "$lib/data/types/files";
 		import Footer from "$lib/components/Footer.svelte"
 		import InformationOverlay from "$lib/components/InformationOverlay.svelte";
-	import SeparationSecondary from "$lib/components/SeparationSecondary.svelte";
+		import SeparationSecondary from "$lib/components/SeparationSecondary.svelte";
+		import PopUp from "$lib/components/PopUp.svelte";
+		import FileList from "$lib/components/FileList.svelte";
+
 
 		let currentlySelected: File | undefined = $state(elements[0]);
 
 		function changeFocus({element}: {element: any}) {
 				currentlySelected = element
 		}
+
+		// ------- Actions -------
+		const commands = [
+				{name: "Download", action: () => {console.log("start")}, key: "D"},
+				{name: "Upload",action: upload, key: "U"}
+		]
+
+		function handleKeyDown(event: KeyboardEvent) {
+				const command = commands.filter(x => x.key == event.key.toUpperCase())[0];
+				if (!command) return;
+				command.action()
+		}
+
+
+		let form: HTMLFormElement;
+		const choices = [
+				{ name: "Submit", action: () => {form.requestSubmit()} },
+				{ name: "Cancel", action: () => {} }
+		]
+
+		// Upload
+		let files: any = $state()
+		let filePopupShow = $state(false)
+		function upload() {
+				//Opens a popup to get file
+				console.log("Toogle")
+				filePopupShow = !filePopupShow
+		}
+
+		function submitUpoad() {
+				if (!files) return; // basic check to avoid sending empty data
+
+				console.log(files)
+		}
+
+
 </script>
 <h1>Cloud</h1>
 
 <div class="content container">
 		<List elements={elements} bind:selection={currentlySelected}> 
 				{#snippet body({element, tabindex}: {element: any, tabindex: any})}
-						<div class="item-container">
-								<button class:selected={element.id == currentlySelected?.id} class="list-item" tabindex="0" onclick={() => changeFocus({element})}>
-										<span 
-												class="element" 
-												class:powered={element.status == "running"}
-										>{element.name}</span>
-								</button>
-						</div>
+				<div class="item-container">
+						<button class:selected={element.id == currentlySelected?.id} class="list-item" tabindex="0" onclick={() => changeFocus({element})}>
+								<span 
+									 class="element" 
+									 class:powered={element.status == "running"}
+									 >{element.path}</span>
+						</button>
+				</div>
 				{/snippet}
 		</List>
 
 		<InformationOverlay title="File">
 				{#snippet content()}
-						<img class="image" src="/icons/nier_placeholder.png" alt="Placeholder" />
-						<!-- Display image if possible else display a placeholder -->
-						<SeparationSecondary />
-						<div class="data bold">
-								<span>{currentlySelected?.description}</span>
-						</div>
-						<!-- Description -->
+				<img class="image" src="/icons/nier_placeholder.png" alt="Placeholder" />
+				<!-- Display image if possible else display a placeholder -->
+				<SeparationSecondary />
+				<div class="data bold">
+						<span>{currentlySelected?.description}</span>
+				</div>
+				<!-- Description -->
 				{/snippet}
 		</InformationOverlay>
 
 		<InformationOverlay title="Properties">
 				{#snippet content()}
-						<div class="data bold">
-								<span>{currentlySelected?.name}</span>
-						</div>
-						<SeparationSecondary />
-						<div class="data">
-								<span>Size</span>
-								<span>{currentlySelected?.size}</span>
-						</div>
-						<div class="data">
-								<span>Created</span>
-								<span>{currentlySelected?.created}</span>
-						</div>
-						<div class="data">
-								<span>Type</span>
-								<span>{currentlySelected?.file_type}</span>
-						</div>
+				<div class="data bold">
+						<span>{currentlySelected?.path}</span>
+				</div>
+				<SeparationSecondary />
+				<div class="data">
+						<span>Size</span>
+						<span>{currentlySelected?.size}</span>
+				</div>
+				<div class="data">
+						<span>Type</span>
+						<span>{currentlySelected?.file_type}</span>
+				</div>
 				{/snippet}
 		</InformationOverlay>
 
 </div>
 
 <footer>
-		<Footer commands={[{name: "Download", action: () => {console.log("start")}, key: "D"}]}/>
+		<Footer commands={commands}/>
 </footer>
+
+<PopUp title="Hello" open={filePopupShow} choices={choices}>
+		{#snippet body()}
+		<p>Please select file to upload</p>
+		<div class="popup-content">
+				<form class="popup-background" action="?/submit" method="POST" bind:this={form}>
+						<label class="fileLabel">
+								<span class="inputText">{files ? files[0].name : "Choisir un fichier"}</span>
+								<input bind:files={files} type="file">
+						</label>
+				</form>
+		</div>
+		{/snippet}
+</PopUp>
+
+<svelte:window on:keydown={handleKeyDown} />
 
 <style>
 		.container {
@@ -91,5 +142,36 @@
 				justify-content: space-between;
 				align-items: flex-start;
 				height: 2em;
+		}
+
+		.popup-content {
+				display: flex;
+				justify-content: center;
+				width: 100%;
+				height: 17em;
+		}
+
+		input[type=file] {
+				display: none;
+		}
+
+		.fileLabel {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				height: 100%;
+				width: 100%;
+		}
+		.fileLabel div {
+				padding: 0.2em;
+				border: var(--bg-overlay-selected) solid 2px;
+				position: relative;
+		}
+
+		.popup-background {
+				width: 30em;
+				background-image: url("/icons/nier_placeholder.png");
+				background-size: contain;
+				background-repeat: no-repeat;
 		}
 </style>
