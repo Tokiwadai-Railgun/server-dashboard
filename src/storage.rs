@@ -8,11 +8,28 @@ use file_client::StorageClient;
 use types::{File, FileData, Metadata, UserData};
 
 #[get("/files")]
-async fn get_files(_req_body: HttpRequest) -> HttpResponse {
-    let client = StorageClient::new();
-    let value = client.get_file_list();
-    
-    HttpResponse::Ok().json(value)
+async fn get_files(request: HttpRequest) -> HttpResponse {
+    let user_id: i16 = match request.headers().get("user_id").unwrap().to_str().unwrap().parse::<i16>() {
+        Ok(result) => {
+            result
+        },
+        Err(e) => {
+            println!("Header is not a number : {}", e);
+            return HttpResponse::InternalServerError().body("Please provide a valid user_id");
+        }
+    };
+    let token = request.headers().get("Authorization").unwrap().to_str().unwrap();
+    let client = StorageClient::new(user_id, token.to_string());
+
+    match client.get_file_list().await {
+        Ok(data) => {
+            HttpResponse::Ok().json(data)
+        },
+        Err(e) => {
+            println!("{}", e);
+            HttpResponse::InternalServerError().body("Error occured getting files")
+        }
+    }
 }
 
 #[post("/upload")]
@@ -21,9 +38,6 @@ async fn upload(request: HttpRequest, request_body: web::Json<File>) -> HttpResp
         user_id: 1,
         token: String::from(request.headers().get("session_token").unwrap().to_str().unwrap())
     };
-
-    let user_id = 1;
-
 
     let metatada = Metadata {
         id: 0, // will not be used
@@ -35,14 +49,13 @@ async fn upload(request: HttpRequest, request_body: web::Json<File>) -> HttpResp
     };
 
     let file_data = FileData {
-        user_data,
         file_name: request_body.file_name.clone(),
         file_content: request_body.file_content.clone()
     };
 
-    let client = StorageClient::new();
+    let client = StorageClient::new(user_data.user_id, user_data.token);
 
-    match client.save_metadata(metatada, user_id).await {
+    match client.save_metadata(metatada).await {
         Ok(_) => {},
         Err(e) => {
             println!("Error occured when saving metadata : {}", e);

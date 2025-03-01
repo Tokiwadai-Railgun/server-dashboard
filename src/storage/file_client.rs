@@ -1,13 +1,10 @@
-use std::str::FromStr;
 use std::env;
-
-use crate::storage::types::UserData;
+use crate::storage::types::MetadataResponse;
 
 use super::types;
-use actix_web::{post, web, HttpRequest, HttpResponse};
 use reqwest::Client;
 use sqlx::PgPool;
-use types::{FileType, Metadata, FileData, File};
+use types::{Metadata, FileData};
 
 
 // CONSTS And Initialisation 
@@ -15,7 +12,8 @@ const STORAGE_API_URL: &str = "http://localhost:8090";
 
 
 pub struct StorageClient {
-    pub _name: String
+    pub user_id: i16,
+    pub token: String
 }
 
 pub enum QueryResponse {
@@ -29,31 +27,35 @@ impl std::fmt::Display for QueryResponse {
             QueryResponse::DatabaseConnectionError => write!(f,"Error connecting to the database"),
             QueryResponse::DatabaseQueryError => write!(f, "Unable to Query Database")
         }
-        
+
     }
 }
 
+pub enum RequestError {
+    RequestError,
+    TransformationError
+}
 
 impl StorageClient {
-    pub fn new() -> Self {
+    pub fn new(user_id: i16, token: String) -> Self {
         Self {
-            _name: "test".to_string()
+            user_id,
+            token
         }
     }
 
-    pub async fn save_metadata(&self, metadata: Metadata, owner_id: i16) -> Result<bool, QueryResponse>  {
+    pub async fn save_metadata(&self, metadata: Metadata) -> Result<bool, QueryResponse>  {
         // First save the metadata to the database
         let database_url: String = env::var("DATABASE_URL").unwrap();
         match PgPool::connect(&database_url).await {
             Ok(pool) => {
-                match sqlx::query!("INSERT INTO storage (description, type, path, owner) VALUES ($1, $2, $3, $4);", metadata.description, metadata.file_type.to_string(), metadata.path, owner_id).execute(&pool).await {
+                match sqlx::query!("INSERT INTO storage (description, type, path, owner) VALUES ($1, $2, $3, $4);", metadata.description, metadata.file_type.to_string(), metadata.path, self.user_id).execute(&pool).await {
                     Ok(_) => {
                         Ok(true)
                     }
                     Err(_) => {
                         Err(QueryResponse::DatabaseQueryError)
                     }
-
                 }
             },
             Err(_) => {
@@ -70,12 +72,10 @@ impl StorageClient {
         let response = client
             .post(format!("{}/upload", STORAGE_API_URL))
             .json(&file_data)
-            .header("TOKEN", file_data.user_data.token)
+            .header("Authorization", self.token.clone())
             .send()
-            .await;
+        .await;
 
-
-        println!("{:?}", response);
 
         match response {
             Ok(response) => {
@@ -92,36 +92,22 @@ impl StorageClient {
         }
     }
 
-    pub fn get_file_list(&self) -> Vec<Metadata> {
-        // write behavior to recieve all files
-        // sample files for now
-        let result = vec![
-            Metadata {
-                id: 0,
-                name: "test-image".to_string(),
-                path: "test/test-image.png".to_string(),
-                size: 12000000,
-                description: "A sample image".to_string(),
-                file_type: FileType::from_str("Image").unwrap()
-            },
-            Metadata {
-                id: 1,
-                name: "test-word".to_string(),
-                path: "test/test-word.docx".to_string(),
-                size: 12000000,
-                description: "A sample word file".to_string(),
-                file_type: FileType::from_str("Word").unwrap()
-            },
-            Metadata {
-                id: 2,
-                name: "test-pdf".to_string(),
-                path: "test/test-pdf.pdf".to_string(),
-                size: 54000000,
-                description: "A sample pdf".to_string(),
-                file_type: FileType::from_str("Pdf").unwrap()
-            },
-        ];
-
-        result
+    pub async fn get_file_list(&self) -> Result<Vec<MetadataResponse>, sqlx::Error> {
+        let database_url = env::var("DATABASE_URL").unwrap();
+        match PgPool::connect(&database_url).await {
+            Ok(pool) => {
+                match sqlx::query_as!(MetadataResponse, "SELECT id, owner, path, description, type as file_type FROM storage WHERE owner = $1", self.user_id).fetch_all(&pool).await {
+                    Ok(data) => {
+                        Ok(data)
+                    },
+                    Err(e) => {
+                        Err(e)
+                    }
+                }
+            }
+            Err(e) => {
+                Err(e)
+            }
+        }
     }
 }

@@ -2,7 +2,7 @@ use serde::{Serialize, Deserialize};
 use std::string::ToString;
 use std::str::FromStr;
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Metadata {
     pub id: u64,
     pub name: String,
@@ -10,6 +10,15 @@ pub struct Metadata {
     pub size: u64, 
     pub description: String,
     pub file_type: FileType
+}
+
+#[derive(Debug, Serialize)]
+pub struct MetadataResponse {
+    pub id: i32,
+    pub path: String,
+    pub description: String,
+    pub owner: i16,
+    pub file_type: String
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -56,7 +65,6 @@ pub struct UserData {
 
 #[derive(Serialize)]
 pub struct FileData {
-    pub user_data: UserData,
     pub file_name: String,
     pub file_content: String
 }

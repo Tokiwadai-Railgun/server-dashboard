@@ -102,14 +102,6 @@ async fn verify_credentials(username: &str, password: &str) -> Result<VerifyResp
             match sqlx::query!("SELECT id, password, salt from users WHERE username = $1;", &username).fetch_one(&pool).await {
                 Ok(result) => {
                     // hash the input password to match the one in the database
-
-                    // let argon2 = Argon2::default();
-                    // For account creation, make script to generate passwords
-                    // let salt = SaltString::generate(&mut OsRng);
-                    // let hash = argon2.hash_password(password.as_bytes(), &salt).map_err(|_| AuthError::PasswordHashError)?.to_string();
-                    // println!("Salt {}", salt.to_string());
-                    // println!("Hash {}", hash);
-
                     let password_hash = PasswordHash::new(&result.password).map_err(|_| AuthError::PasswordHashError)?;
                     match  Argon2::default().verify_password(password.as_bytes(), &password_hash) {
                         Ok(_) => {
@@ -150,7 +142,6 @@ async fn authorize(req_body: HttpRequest) -> HttpResponse {
     //
     match req_body.headers().get("session_token") {
         Some(token_header) => {
-            println!("{}", token_header.to_str().unwrap());
             match PgPool::connect(&database_url).await {
                 Ok(pool) => {
                     match sqlx::query!("SELECT COUNT(*) as number from user_session WHERE token = $1;", token_header.to_str().unwrap()).fetch_one(&pool).await {
@@ -180,6 +171,11 @@ async fn authorize(req_body: HttpRequest) -> HttpResponse {
     HttpResponse::Unauthorized().body("Unvalid Session")
 }
 
+async fn verify_token(token: &str) -> Result<bool, sqlx::Error>{
+
+    Ok(true)
+}
+
 #[post("/revoke")]
 async fn revoke(req_body: web::Json<Token>) -> HttpResponse {
     // revoke all sessions for this user
@@ -187,9 +183,38 @@ async fn revoke(req_body: web::Json<Token>) -> HttpResponse {
 }
 
 #[post("/logout")]
-async fn logout(req_body: web::Json<Token>) -> HttpResponse {
-    // revoke the session with this token
-    todo!()
+async fn logout(request: HttpRequest) -> impl Responder {
+    // first check if the user who ask this is logged in
+    let database_url = env::var("DATABASE_URL").unwrap();
+    let token = request.headers().get("Authorization").unwrap().to_str().unwrap();
+
+    match PgPool::connect(&database_url).await {
+        Ok(pool) => {
+            match sqlx::query!("SELECT COUNT(*) as number from user_session WHERE token = $1;", token).fetch_one(&pool).await {
+                Ok(result) => {
+                    if result.number.unwrap_or(0) != 1 { return HttpResponse::Unauthorized().body("Invalid Token") }
+
+                    match sqlx::query!("DELETE FROM user_session WHERE token = $1", token).execute(&pool).await {
+                        Ok(_) => {
+                            HttpResponse::Ok().body("Redirecting to login")
+                        },
+                        Err(e) => {
+                            println!("{}", e);
+                            HttpResponse::InternalServerError().body("Error querrying database 2")
+                        }
+
+                    }
+                },
+                Err(_) => {
+                    HttpResponse::InternalServerError().body("Error querrying database")
+                }
+
+            }
+        },
+        Err(e) => {
+            HttpResponse::InternalServerError().body("An error occured when connecting to database")
+        }
+    }
 }
 
 

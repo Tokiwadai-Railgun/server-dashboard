@@ -15,7 +15,6 @@ mod storage;
 // Structs for the user and the session
 
 async fn manual_hello() -> impl Responder {
-    println!("{}", env::var("DATABASE_URL").unwrap());
     HttpResponse::Ok().body("Hey there!\n")
 }
 
@@ -23,7 +22,7 @@ async fn manual_hello() -> impl Responder {
 async fn main() -> std::io::Result<()> {
     // Loading environment variables
     dotenv::dotenv().expect("Failed to load .env file");
-    println!("Starting web server on port 8080 ...");
+    println!("Starting web server on port 8070 ...");
 
     // setting up cors 
 
@@ -38,6 +37,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .wrap(cors)
             .service(login::login)
+            .service(login::logout)
             .service(login::authorize)
             .service(proxmox_request::request_vm_list)
             .service(
@@ -46,7 +46,7 @@ async fn main() -> std::io::Result<()> {
                     .service(storage::get_files)
             )
     })
-    .bind(("127.0.0.1", 8080))?
+    .bind(("127.0.0.1", 8070))?
     .run()
     .await
 }
