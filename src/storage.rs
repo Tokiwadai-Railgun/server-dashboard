@@ -34,6 +34,10 @@ async fn get_files(request: HttpRequest) -> HttpResponse {
 
 #[post("/upload")]
 async fn upload(request: HttpRequest, request_body: web::Json<File>) -> HttpResponse {
+    if !request_body.verif_type() {
+        return HttpResponse::BadRequest().body("Invalid File type");
+    }
+
     let user_data = UserData {
         user_id: 1,
         token: String::from(request.headers().get("session_token").unwrap().to_str().unwrap())
@@ -63,17 +67,19 @@ async fn upload(request: HttpRequest, request_body: web::Json<File>) -> HttpResp
         }
     };
 
-    match client.save_file(file_data).await {
-        Ok(status) => {
-            if status != true {
-                return HttpResponse::InternalServerError().body("Errr occured when saving file")
-            }
-        },
-        Err(e) => {
-            println!("Error occured when saving file : {}", e);
-            return HttpResponse::InternalServerError().body("Error occured when saving file")
-        }
-    }
+    println!("Content is {:?}", file_data.file_content);
+
+    // match client.save_file(file_data).await {
+    //     Ok(status) => {
+    //         if !status {
+    //             return HttpResponse::InternalServerError().body("Errr occured when saving file")
+    //         }
+    //     },
+    //     Err(e) => {
+    //         println!("Error occured when saving file : {}", e);
+    //         return HttpResponse::InternalServerError().body("Error occured when saving file")
+    //     }
+    // }
 
     HttpResponse::Ok().body("File saved")
 }

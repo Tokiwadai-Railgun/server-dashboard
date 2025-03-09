@@ -1,6 +1,6 @@
 use serde::{Serialize, Deserialize};
-use std::string::ToString;
-use std::str::FromStr;
+
+const VALID_TYPES: [&str; 2] = ["image/png", "image/jpeg"];
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Metadata {
@@ -9,7 +9,7 @@ pub struct Metadata {
     pub path: String,
     pub size: u64, 
     pub description: String,
-    pub file_type: FileType
+    pub file_type: String
 }
 
 #[derive(Debug, Serialize)]
@@ -21,41 +21,6 @@ pub struct MetadataResponse {
     pub file_type: String
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub enum FileType {
-    Image,
-    Word,
-    Excel,
-    Pdf,
-    Video
-}
-
-
-impl FromStr for FileType {
-    type Err = ();
-
-    fn from_str(input: &str) -> Result<FileType, Self::Err> {
-        match input {
-            "Image" => Ok(Self::Image),
-            "Word" => Ok(Self::Word),
-            "Excel" => Ok(Self::Excel),
-            "Pdf" => Ok(Self::Pdf),
-            "Video" => Ok(Self::Video),
-            _ => Err(())
-        }
-    }
-}
-impl ToString for FileType {
-    fn to_string(&self) -> String {
-        match &self {
-            FileType::Video => String::from("Video"),
-            FileType::Image => String::from("Image"),
-            FileType::Excel => String::from("Excel"),
-            FileType::Word => String::from("Word"),
-            FileType::Pdf => String::from("Pdf")
-        }
-    }
-}
 
 #[derive(Serialize)]
 pub struct UserData {
@@ -66,7 +31,7 @@ pub struct UserData {
 #[derive(Serialize)]
 pub struct FileData {
     pub file_name: String,
-    pub file_content: String
+    pub file_content: Vec<u8>
 }
 
 #[derive(Debug, Deserialize)]
@@ -74,6 +39,14 @@ pub struct File {
     pub file_name: String,
     pub file_size: u64,
     pub description: String,
-    pub file_type: FileType,
-    pub file_content: String
+    pub file_type: String,
+    pub file_content: Vec<u8>
+}
+
+impl File {
+    pub fn verif_type(&self) -> bool {
+        if !VALID_TYPES.contains(&self.file_type.as_str()) { return false };
+
+        true
+    }
 }
