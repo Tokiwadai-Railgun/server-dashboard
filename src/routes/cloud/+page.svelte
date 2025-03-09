@@ -1,6 +1,7 @@
 <script lang="ts">
 		import "$lib/styles/borderedList.css"
 		const props = $props()
+		import { page } from "$app/state";
 		const elements = props.data.fileList
 		import List from "$lib/components/List.svelte"
 		import type { File } from "$lib/data/types/files";
@@ -8,8 +9,6 @@
 		import InformationOverlay from "$lib/components/InformationOverlay.svelte";
 		import SeparationSecondary from "$lib/components/SeparationSecondary.svelte";
 		import PopUp from "$lib/components/PopUp.svelte";
-		import FileList from "$lib/components/FileList.svelte";
-
 
 		let currentlySelected: File | undefined = $state(elements[0]);
 
@@ -41,19 +40,23 @@
 		let filePopupShow = $state(false)
 		function upload() {
 				//Opens a popup to get file
-				console.log("Toogle")
 				filePopupShow = !filePopupShow
 		}
 
 		function submitUpoad() {
 				if (!files) return; // basic check to avoid sending empty data
 
-				console.log(files)
 		}
 
 
 </script>
 <h1>Cloud</h1>
+
+{#if page.form?.error}
+		<div class="content-error">
+				<p>{page.form.message}</p>
+		</div>
+{/if}
 
 <div class="content container">
 		<List elements={elements} bind:selection={currentlySelected}> 
@@ -108,10 +111,10 @@
 		{#snippet body()}
 		<p>Please select file to upload</p>
 		<div class="popup-content">
-				<form class="popup-background" action="?/submit" method="POST" bind:this={form}>
+				<form class="popup-background" action="?/submit" method="POST" bind:this={form} enctype="multipart/form-data">
 						<label class="fileLabel">
 								<span class="inputText">{files ? files[0].name : "Choisir un fichier"}</span>
-								<input bind:files={files} type="file">
+								<input bind:files={files} type="file" name="file">
 						</label>
 				</form>
 		</div>

@@ -40,10 +40,8 @@
 		// ------- Command Handling --------
 		async function toogleVM() {
 				const currentlyRunning = currentlySelected.status == "running"
-				console.log("fetch")
 				const result = await fetch(`${API_URL}/proxmox/toogle/${currentlySelected.vmid}/${currentlyRunning}`);
 
-				console.log(result)
 				if (result.status == 200) {
 						message = "Action Success" 
 						messageOpen = true

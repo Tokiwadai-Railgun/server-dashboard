@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Image icon with simple frame and landscape -->
+  <rect x="25" y="25" width="50" height="50" fill="#d9d6c9"/>
+  <circle cx="40" cy="35" r="5" fill="#a8a59c"/>
+  <polygon points="25,75 50,45 75,75" fill="#a8a59c"/>
+</svg>

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- PDF document with simple design -->
+  <rect x="25" y="25" width="50" height="50" fill="#d9d6c9"/>
+  <!-- PDF text as a single element -->
+  <text x="28" y="60" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#a8a59c">PDF</text>
+</svg>

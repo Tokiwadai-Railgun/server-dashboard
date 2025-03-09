@@ -18,6 +18,10 @@
 				--fg-font-selected: rgb(175,169,149);
 				--overlay-shadow: rgba(150, 149, 128, 0.8);
 				--element-color: 78,75,66;
+				--error-red: rgb(165, 83, 83);
+				--error-red-light: rgb(190, 110, 110);
+				--error-red-dark: rgb(140, 70, 70);
+				--error-red-overlay: rgba(165, 83, 83, 0.3);
 		}
 		@font-face {
 				font-family: 'FOT-Rodin';
@@ -96,6 +100,16 @@
 				background-image: linear-gradient(90deg, rgba(var(--element-color), .2), rgba(var(--element-color), .2) 14px, 
 						transparent 14px, transparent 20px,
 						rgba(var(--element-color), .2) 20px, rgba(var(--element-color), .2) 23px, transparent 23px);
+						margin-bottom: 2rem;
+		}
+
+		:global(.content-error) {
+				color: var(--error-red);
+				padding-left: 3rem;
+				margin-left: 1em;
+				background-image: linear-gradient(90deg, var(--error-red-overlay), var(--error-red-overlay) 14px, 
+						transparent 14px, transparent 20px,
+						var(--error-red-overlay) 20px, var(--error-red-overlay) 23px, transparent 23px);
 						margin-bottom: 2rem;
 		}
 

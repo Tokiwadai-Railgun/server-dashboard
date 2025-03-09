@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Video file with film strip and play button -->
+  <rect x="25" y="30" width="50" height="40" fill="#d9d6c9"/>
+  <rect x="25" y="25" width="10" height="5" fill="#a8a59c"/>
+  <rect x="40" y="25" width="10" height="5" fill="#a8a59c"/>
+  <rect x="55" y="25" width="10" height="5" fill="#a8a59c"/>
+  <rect x="70" y="25" width="5" height="5" fill="#a8a59c"/>
+  <rect x="25" y="70" width="10" height="5" fill="#a8a59c"/>
+  <rect x="40" y="70" width="10" height="5" fill="#a8a59c"/>
+  <rect x="55" y="70" width="10" height="5" fill="#a8a59c"/>
+  <rect x="70" y="70" width="5" height="5" fill="#a8a59c"/>
+  <polygon points="40,40 40,60 60,50" fill="#a8a59c"/>
+</svg>
