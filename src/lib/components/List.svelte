@@ -1,7 +1,7 @@
 <script lang='ts'>
 	import type { Snippet } from 'svelte';
 
-		let { elements, body, selection = $bindable('')}: {elements: any[], body: Snippet<[any]>, selection: any} = $props()
+		let { elements, body}: {elements: any[], body: Snippet<[any]>} = $props()
 
 </script>
 

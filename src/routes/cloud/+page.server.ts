@@ -1,4 +1,4 @@
-import { error, fail, redirect, type Cookies } from "@sveltejs/kit";
+import { fail, redirect, type Cookies } from "@sveltejs/kit";
 import { API_URL } from "$env/static/private"
 
 export async function load({cookies}: {cookies: Cookies}) {
@@ -61,24 +61,39 @@ export const actions = {
 				const content = await file.arrayBuffer()
 				const base64Content = btoa(new Uint8Array(content).reduce((data, byte) => data + String(byte), ''))
 
-				let body = {    
-						"file_name": file.name,
-						"file_size": file.size,
-						"description": " ",
-						"file_type": file.type,
-						"file_content": base64Content
+				// let body = {    
+				// 		"file_name": file.name,
+				// 		"file_size": file.size,
+				// 		"description": " ",
+				// 		"file_type": file.type,
+				// 		"file_content": base64Content
+				// }
+
+				const metadata = {
+						file_name: file.name,
+						file_size: file.size,
+						description: "",
+						file_type: file.type
 				}
 
-				const headers = new Headers([["session_token", token], ["Content-Type", "application/json"]])
+				const metadataBlob = new Blob([JSON.stringify(metadata)], {
+						type: "application/json"
+				})
+
+				const headers = new Headers([["Authorization", token]])
+				const body = new FormData()
+				body.append("file_data", metadataBlob)
+				body.append("file", file);
+
 				const response = await fetch(API_URL + "/storage/upload", {
 						method: "POST",
-						body: JSON.stringify(body),
+						body: body,
 						headers: headers
 				})
 
 				if (!response.ok) {
 						console.log(response.status)
-						console.log(await response.text())
+						console.log("Response", await response.text())
 						return fail(500, {
 								error: true,
 								message: "Error occured when saving the file"

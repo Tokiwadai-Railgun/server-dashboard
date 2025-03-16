@@ -59,48 +59,49 @@
 {/if}
 
 <div class="content container">
-		<List elements={elements} bind:selection={currentlySelected}> 
+		<List elements={elements}> 
 				{#snippet body({element, tabindex}: {element: any, tabindex: any})}
-				<div class="item-container">
-						<button class:selected={element.id == currentlySelected?.id} class="list-item" tabindex="0" onclick={() => changeFocus({element})}>
-								<span 
-									 class="element" 
-									 class:powered={element.status == "running"}
-									 >{element.path}</span>
-						</button>
-				</div>
+						<div class="item-container">
+								<button class:selected={element.id == currentlySelected?.id} class="list-item" tabindex="0" onclick={() => changeFocus({element})}>
+										<span 
+											 class="element" 
+											 class:powered={element.status == "running"}
+											 >{element.path}</span>
+								</button>
+						</div>
 				{/snippet}
 		</List>
 
-		<InformationOverlay title="File">
-				{#snippet content()}
-				<img class="image" src="/icons/nier_placeholder.png" alt="Placeholder" />
-				<!-- Display image if possible else display a placeholder -->
-				<SeparationSecondary />
-				<div class="data bold">
-						<span>{currentlySelected?.description}</span>
-				</div>
-				<!-- Description -->
-				{/snippet}
-		</InformationOverlay>
+		{#if currentlySelected}
+				<InformationOverlay title="File">
+						{#snippet content()}
+						<img class="image" src="/icons/nier_placeholder.png" alt="Placeholder" />
+						<!-- Display image if possible else display a placeholder -->
+						<SeparationSecondary />
+						<div class="data bold">
+								<span>{currentlySelected?.description}</span>
+						</div>
+						<!-- Description -->
+						{/snippet}
+				</InformationOverlay>
 
-		<InformationOverlay title="Properties">
-				{#snippet content()}
-				<div class="data bold">
-						<span>{currentlySelected?.path}</span>
-				</div>
-				<SeparationSecondary />
-				<div class="data">
-						<span>Size</span>
-						<span>{currentlySelected?.size}</span>
-				</div>
-				<div class="data">
-						<span>Type</span>
-						<span>{currentlySelected?.file_type}</span>
-				</div>
-				{/snippet}
-		</InformationOverlay>
-
+				<InformationOverlay title="Properties">
+						{#snippet content()}
+						<div class="data bold">
+								<span>{currentlySelected?.path}</span>
+						</div>
+						<SeparationSecondary />
+						<div class="data">
+								<span>Size</span>
+								<span>{currentlySelected?.size}</span>
+						</div>
+						<div class="data">
+								<span>Type</span>
+								<span>{currentlySelected?.file_type}</span>
+						</div>
+						{/snippet}
+				</InformationOverlay>
+		{/if}
 </div>
 
 <footer>
