@@ -1,3 +1,4 @@
+use actix_multipart::form::{json::Json, tempfile::TempFile, MultipartForm};
 use serde::{Serialize, Deserialize};
 
 const VALID_TYPES: [&str; 2] = ["image/png", "image/jpeg"];
@@ -24,14 +25,20 @@ pub struct MetadataResponse {
 
 #[derive(Serialize)]
 pub struct UserData {
-    pub user_id: i16,
+    pub user_id: i32,
     pub token: String
 }
 
 #[derive(Serialize)]
 pub struct FileData {
     pub file_name: String,
-    pub file_content: Vec<u8>
+    pub user_id: i32
+}
+
+#[derive(Debug, MultipartForm)]
+pub struct FileForm {
+    pub file_data: Json<File>,
+    pub file: TempFile
 }
 
 #[derive(Debug, Deserialize)]
@@ -40,13 +47,9 @@ pub struct File {
     pub file_size: u64,
     pub description: String,
     pub file_type: String,
-    pub file_content: Vec<u8>
 }
 
-impl File {
-    pub fn verif_type(&self) -> bool {
-        if !VALID_TYPES.contains(&self.file_type.as_str()) { return false };
-
-        true
-    }
+pub struct UserPermissions {
+    pub user_id: i32,
+    pub roles: String
 }

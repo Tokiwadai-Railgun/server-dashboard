@@ -211,7 +211,7 @@ async fn logout(request: HttpRequest) -> impl Responder {
 
             }
         },
-        Err(e) => {
+        Err(_) => {
             HttpResponse::InternalServerError().body("An error occured when connecting to database")
         }
     }

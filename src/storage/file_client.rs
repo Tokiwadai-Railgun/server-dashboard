@@ -3,8 +3,10 @@ use crate::storage::types::MetadataResponse;
 
 use super::types;
 use reqwest::Client;
+use reqwest::multipart as reqwest_multipart;
 use sqlx::PgPool;
-use types::{Metadata, FileData};
+use types::Metadata;
+
 
 
 // CONSTS And Initialisation 
@@ -44,7 +46,7 @@ impl StorageClient {
         }
     }
 
-    pub async fn save_metadata(&self, metadata: Metadata) -> Result<bool, QueryResponse>  {
+    pub async fn save_metadata(&self, metadata: &Metadata) -> Result<bool, QueryResponse>  {
         // First save the metadata to the database
         let database_url: String = env::var("DATABASE_URL").unwrap();
         match PgPool::connect(&database_url).await {
@@ -65,14 +67,25 @@ impl StorageClient {
 
     }
 
-    pub async fn save_file(&self, file_data: FileData) -> Result<bool, reqwest::Error> {
+    pub async fn save_file(&self, metadata: &Metadata, buffer: Vec<u8>) -> Result<bool, reqwest::Error> {
         let client = Client::new();
+
+        let form_part = reqwest_multipart::Part::bytes(buffer)
+            .file_name(metadata.name.clone())
+            .mime_str(&metadata.file_type)
+            .unwrap_or_else(|_| reqwest_multipart::Part::bytes(Vec::new()));
+
+        let multipart_form = reqwest_multipart::Form::new()
+            .part("file", form_part)
+            .text("user_id", self.user_id.to_string());
+
 
         println!("Saving file");
         let response = client
             .post(format!("{}/upload", STORAGE_API_URL))
-            .json(&file_data)
+            .multipart(multipart_form)
             .header("Authorization", self.token.clone())
+            .header("user_id", self.user_id)
             .send()
         .await;
 
@@ -80,6 +93,9 @@ impl StorageClient {
         match response {
             Ok(response) => {
                 if response.status() != 200 {
+                    println!("{:?}", response);
+                    println!("{}", response.text().await.unwrap());
+                    println!("Error occured");
                     return Ok(false)
                 }
                 println!("File saved");
