@@ -1,11 +1,8 @@
-use actix_multipart::form;
-use actix_multipart::form::{json::Json, tempfile::TempFile, MultipartForm};
+use actix_files::NamedFile;
+use actix_multipart::form::{tempfile::TempFile, MultipartForm};
 use actix_web::{self, get, post, HttpRequest, HttpResponse, Responder};
-use serde::Deserialize;
-use std::fs::File;
 use std::path::Path;
 use std::fs;
-use std::io::prelude::*;
 
 const BASE_PATH: &str = "/home/fuyuki/Documents/server-dashboard-api-storage/storage";
 
@@ -53,4 +50,14 @@ pub async fn upload_file( request: HttpRequest, MultipartForm(form): MultipartFo
             HttpResponse::InternalServerError().body("An error occured when saving the file")
         }
     }
+}
+
+#[get("/download/{filename}")]
+pub async fn download_file( request: HttpRequest ) -> actix_web::Result<NamedFile> {
+    let file_name: String = request.match_info().query("filename").parse().unwrap();
+    let user_id = request.headers().get("user_id").ok_or_else(|| actix_web::error::ErrorBadRequest("Missing user_id header"))?.to_str().unwrap();
+
+    let path = format!("{}/{}/{}", BASE_PATH, user_id, file_name);
+
+    Ok(NamedFile::open(path)?)
 }

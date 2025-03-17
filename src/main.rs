@@ -8,6 +8,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
         App::new()
             .service(file_handler::upload_file)
+            .service(file_handler::download_file)
     })
     .bind(("0.0.0.0", 8090))?
     .run()
