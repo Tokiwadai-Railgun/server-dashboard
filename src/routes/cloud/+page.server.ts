@@ -42,7 +42,7 @@ export const actions = {
 				if (!token) {
 						return fail( 401, {
 								error: true,
-								message: "Unaothorized"
+								message: "Unauthorized"
 						} )
 				}
 
@@ -60,14 +60,6 @@ export const actions = {
 
 				const content = await file.arrayBuffer()
 				const base64Content = btoa(new Uint8Array(content).reduce((data, byte) => data + String(byte), ''))
-
-				// let body = {    
-				// 		"file_name": file.name,
-				// 		"file_size": file.size,
-				// 		"description": " ",
-				// 		"file_type": file.type,
-				// 		"file_content": base64Content
-				// }
 
 				const metadata = {
 						file_name: file.name,
@@ -102,12 +94,4 @@ export const actions = {
 
 				redirect(302, "/cloud")
 		},
-
-		cancel: async() => {
-				return
-		},
-
-		download: async({ request, cookies }: {request: Request, cookies: Cookies}) => {
-				// TODO: Make download endpoint
-		}
 }

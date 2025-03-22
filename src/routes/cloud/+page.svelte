@@ -10,6 +10,7 @@
 		import SeparationSecondary from "$lib/components/SeparationSecondary.svelte";
 		import PopUp from "$lib/components/PopUp.svelte";
 
+		let message = $state('');
 		let currentlySelected: File | undefined = $state(elements[0]);
 
 		function changeFocus({element}: {element: any}) {
@@ -18,7 +19,7 @@
 
 		// ------- Actions -------
 		const commands = [
-				{name: "Download", action: () => {console.log("start")}, key: "D"},
+				{name: "Download", action: downloadPopup, key: "D"},
 				{name: "Upload",action: upload, key: "U"}
 		]
 
@@ -32,7 +33,7 @@
 		let form: HTMLFormElement;
 		const choices = [
 				{ name: "Submit", action: () => {form.requestSubmit()} },
-				{ name: "Cancel", action: () => {} }
+				{ name: "Cancel", action: () => {filePopupShow = false} }
 		]
 
 		// Upload
@@ -43,12 +44,16 @@
 				filePopupShow = !filePopupShow
 		}
 
-		function submitUpoad() {
-				if (!files) return; // basic check to avoid sending empty data
-
+		let downloadPopupShow = $state(false)
+		function downloadPopup() {
+				downloadPopupShow = true;
 		}
 
-
+		let downloadForm: HTMLFormElement;
+		const downloadChoices = [
+				{ name: "Yes", action: () => {downloadForm.requestSubmit(); downloadPopupShow = false;} },
+				{ name: "No", action: () => {downloadPopupShow = false} }
+		]
 </script>
 <h1>Cloud</h1>
 
@@ -57,6 +62,7 @@
 				<p>{page.form.message}</p>
 		</div>
 {/if}
+
 
 <div class="content container">
 		<List elements={elements}> 
@@ -108,7 +114,7 @@
 		<Footer commands={commands}/>
 </footer>
 
-<PopUp title="Hello" open={filePopupShow} choices={choices}>
+<PopUp title="Upload" open={filePopupShow} choices={choices}>
 		{#snippet body()}
 		<p>Please select file to upload</p>
 		<div class="popup-content">
@@ -119,6 +125,17 @@
 						</label>
 				</form>
 		</div>
+		{/snippet}
+</PopUp>
+
+<PopUp title="File Download" open={downloadPopupShow} choices={downloadChoices}>
+		{#snippet body()}
+				<div class="popup-message">
+						<form action={`/api/download/${currentlySelected?.path}`} method="GET" bind:this={downloadForm}>
+							<input type="text" value={currentlySelected?.path} placeholder="File name" hidden />
+						</form>
+						<p>Do you want to download the file : <span class="popup-file-name">{currentlySelected ? currentlySelected.path : "ERROR"}</span> </p>
+				</div>
 		{/snippet}
 </PopUp>
 
@@ -178,4 +195,13 @@
 				background-size: contain;
 				background-repeat: no-repeat;
 		}
+
+		.popup-message {
+				padding: 1em;
+		}
+
+		.popup-file-name {
+				font-weight: bold;
+		}
+
 </style>
