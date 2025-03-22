@@ -1,8 +1,6 @@
 use actix_multipart::form::{json::Json, tempfile::TempFile, MultipartForm};
 use serde::{Serialize, Deserialize};
 
-const VALID_TYPES: [&str; 2] = ["image/png", "image/jpeg"];
-
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Metadata {
     pub id: u64,

@@ -33,11 +33,6 @@ impl std::fmt::Display for QueryResponse {
     }
 }
 
-pub enum RequestError {
-    RequestError,
-    TransformationError
-}
-
 impl StorageClient {
     pub fn new(user_id: i16, token: String) -> Self {
         Self {

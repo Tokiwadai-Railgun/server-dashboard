@@ -171,11 +171,6 @@ async fn authorize(req_body: HttpRequest) -> HttpResponse {
     HttpResponse::Unauthorized().body("Unvalid Session")
 }
 
-async fn verify_token(token: &str) -> Result<bool, sqlx::Error>{
-
-    Ok(true)
-}
-
 #[post("/revoke")]
 async fn revoke(req_body: web::Json<Token>) -> HttpResponse {
     // revoke all sessions for this user

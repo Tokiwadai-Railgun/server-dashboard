@@ -1,5 +1,4 @@
-use actix_web::{web, App, HttpResponse, HttpServer, Responder};
-use std::env;
+use actix_web::{web, App, HttpServer};
 use actix_cors::Cors;
 
 // login module
@@ -13,10 +12,6 @@ use proxmox::proxmox_request;
 mod storage;
 
 // Structs for the user and the session
-
-async fn manual_hello() -> impl Responder {
-    HttpResponse::Ok().body("Hey there!\n")
-}
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -44,6 +39,7 @@ async fn main() -> std::io::Result<()> {
                 web::scope("/storage")
                     .service(storage::upload)
                     .service(storage::get_files)
+                    .service(storage::download)
             )
     })
     .bind(("127.0.0.1", 8070))?
