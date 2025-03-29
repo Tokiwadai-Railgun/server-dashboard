@@ -24,7 +24,6 @@ export async function load({cookies}: {cookies: Cookies}) {
 				credentials: "include",
 				headers: {
 						"Authorization": session_token,
-						"user_id": "1"
 				}
 		})
 
