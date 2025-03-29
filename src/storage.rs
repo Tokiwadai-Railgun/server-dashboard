@@ -20,17 +20,13 @@ const AUTHORIZED_ROLES: [&str; 2] = ["Admin", "cloud"];
 
 #[get("/files")]
 async fn get_files(request: HttpRequest) -> HttpResponse {
-    let user_id: i16 = match request.headers().get("user_id").unwrap().to_str().unwrap().parse::<i16>() {
-        Ok(result) => {
-            result
-        },
-        Err(e) => {
-            println!("Header is not a number : {}", e);
-            return HttpResponse::InternalServerError().body("Please provide a valid user_id");
-        }
-    };
     let token = request.headers().get("Authorization").unwrap().to_str().unwrap();
-    let client = StorageClient::new(user_id, token.to_string());
+
+    // Get userId from database
+    let user = get_user_permissions(token).await.unwrap();
+
+    let client = StorageClient::new(user.user_id.try_into().unwrap(), token.to_string());
+
 
     match client.get_file_list().await {
         Ok(data) => {
