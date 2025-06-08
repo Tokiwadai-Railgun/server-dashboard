@@ -1,6 +1,6 @@
 # Features
 * [X] Gestion des comptes 
-* [ ] Gestion des dockers
 * [X] VMS (Potentiellement)
 * [X] Cloud
+* [ ] Gestion des dockers
 * [ ] IA
