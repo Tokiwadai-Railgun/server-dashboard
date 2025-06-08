@@ -1,8 +1,6 @@
 # Features
-* [ ] Gestion des comptes 
+* [X] Gestion des comptes 
 * [ ] Gestion des dockers
-* [ ] Gestion des process
-    * [ ] Izuna
-* [ ] VMS (Potentiellement)
-* [ ] Cloud
+* [X] VMS (Potentiellement)
+* [X] Cloud
 * [ ] IA
